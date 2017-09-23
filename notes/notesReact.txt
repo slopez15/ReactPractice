@@ -794,28 +794,156 @@ webpack info
 *********************************************
 Video 2 - installation and bundling JS files
 *********************************************
+00. localhost:3000 already running
+	127.0.0.1:3000/webpack-playlist
+01. Checkout Lesson 2: `git checkout lesson-2`
+02. npm init
+	package.js to track package dependencies
+03. npm install webpack --save-dev
+	save as a dev dependency
+	afterwards, 
+		node_modules folder appears.
+		devDependencies added in package.js
+04. Test if localhost is running
+	type something in index.html's <body></body>
+05. create `script-1.js` and write in it.
+	*see `script-1.js` code below
+06. link script file into index.html, then save.
+	should get an alert on localhost due to `script-1.js` file
+07. create `script-2.js` file
+	a. split `script-1.js` file code.
+		since js code is split & index.html only links to `script-1.js` file, cannot access the other half.
+	b. add require of `script-2.js` in `script-1.js`
+	c. `script-2.js` needs to allow `script-1.js` to have access to methods/variables/etc. via module.exports
+		*!still does not work if reload page!
+		why?
+			most browsers not support require of modules
+			need to run webpack
+				to gather modules into one file.
+		.
+08. `webpack script-1.js ./bundle.js`
+	format: `webpack` [entry-point] [ouputFile]
+09. Link `bundle.js` inside `index.html` instead of `script-1.js`
+10. If webpack not working, install globaly via
+	`npm install -g webpack`
+.
+
+*********************************************
+Video 3 - webpack.config.js file
+*********************************************
+https://youtu.be/sdoG5cCA5c4
+video 2 recap
+	2 scripts created. 
+	webpack to bundle into a single file 
+About:
+	config file will allow no need for
+		`webpack [entry] [output]`
+	instead will just do
+		`webpack`
+.
+Steps:
+01. create `webpack.config.js`
+	module.exports an object
+	*see below for `webpack.config.js`
+	*delete bundle.js since webpack.config will make new one.
+	*updated index.html for ./dist/bundle.js
+	* This tutorial, only added the [entry]&[output] for webpack.config
+
+
+*********************************************
+Video 4 - Babel Loader
+*********************************************
+https://youtu.be/H_QACBSqRBE
+About:
+	Loader? = help perform transformations on code.
+		kinda like how html has shivs
+		*since not all browsers support ES2015/JSX, can convert code into vanilla.js aka normal JavaScript
+		many loaders for many things, ex: SASS
+
+----------------------------------------
+How to use Babel Loader?
+----------------------------------------
+3 steps for babel-loader
+1. `npm install babel-core and babel-loader --save-dev`
+2. install presets that will be used for transformations
+	ex: 
+		if want to transform [eg.ES2015] code,
+		need to install [eg.ES2015] preset
+	
+3. configure webpack.config to tell it to use babel for transformation
+
+Links:
+babeljs.io
+	can use next generation JavaScript today.
+.
+Info
+	say you want to use ES2015. 
+		in: script-1.js
+		from: module.exports = "tempus fugits";
+		to: 
+			const mssg = "tempus fugits";
+			module.exports = mssg;
+	If ran with webpack, you will notice inside bundle.js that...
+		const is still used, cause webpack
+		has not converted it into vanilla JavaScript
+	This is why you need
+		babel-core
+		babel-loader 
+		babel-preset-_____
+			preset that we want to use is ES2015
+				*babel-preset-es2015 
+.
+
+01. `npm install babel-core babel-loader babel-preset-es2015 --save-dev`
+02. configure webpack.config to conduct transformations
+	*see webpack.config.js files below.
+03. `webpack`
+	see output-file 
+	can see const is changed into a variable.
+	"use strict" - is es5 for... 
+		"restricted variant of JavaScript"
+		*changes silent errors to throw errors
+			It catches some common coding bloopers, throwing exceptions.
+			It prevents, or throws errors, when relatively "unsafe" actions are taken (such as gaining access to the global object).
+			It disables features that are confusing or poorly thought out.
+	.
+-------------------------------
+Summary
+-------------------------------
+Above, so far, will convert es2015 to be browser ready vanilla code.
+Will cover how to convert for JSX for react. 
 
 
 ----------------------------------------
+`script-1.js` file
+----------------------------------------
+var message = "tempus fugit";
+//alert(message); //placed into `script-2.js` for step 07 of video 2.
+	
+----------------------------------------
+`script-2.js` file
+----------------------------------------
+//var message = "tempus fugits";
+alert(message);
 
 ----------------------------------------
-
+`index.js` file
+----------------------------------------
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Webpack</title>
+	</head>
+	<body>
+		<div id="body-content"></div>
+		<script src="./dist/bundle.js"></script> //"./script-1.js"
+	</body>
+</html>
 
 	
 ----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-webpack.config.js - user2's version
+webpack.config.js file - user2's version
 ----------------------------------------
 module.exports = {
 
@@ -827,15 +955,16 @@ module.exports = {
         path: 'dist',
         filename: 'bundle.js'
     },
-
+		//video 3 is everything above
+		//video 4&5 is everything included below
      module: {
         loaders: [
             {
-                test: /\.js$/,
+                test: /\.js$/, //to only test on js files, not others like html file.
                 exclude: /(node_modules)/,
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015']
+                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
                 }
             },
             {
@@ -847,14 +976,281 @@ module.exports = {
 
 };
 
+*********************************************
+Video 5 - CSS Loader
+*********************************************
+https://youtu.be/L1QMrPsPV5w
+
+----------------------------------------
+About
+----------------------------------------
+load only styles we need, into varying parts of app.
+	For example, If working with JS for dynamic content or injection,
+		//OLD
+			/split JS into different components
+			//each component can only load CSS needed for that component
+CSS becomes more modular and easier to manage.
+2 loaders (*must be together to work). 
+	1. css-loader
+		loads css into JS
+	2. style-loader	
+		adds css into the DOM
+.
+steps
+1. added 'div with class of intro-component' in index.html
+	added h1 tags in it with "CSS Loaders are Awesome"
+	The string above is to be styled
+2. created IntroComponent.css
+	*see file below for how it was set up.
+	There is nothing linking to this css file.
+3. `npm install --save-dev css-loader style-loader`
+	OR `npm install -D css-loader style-loader`
+4. configure webpacke
+	for new loaders added
+	*see `webpack.config.js` file.
+5. require `introComponent.css` in `javascript-1.js`
+6. `webpack`
+
+
+----------------------------------------
+Summary
+----------------------------------------
+Might think this is pointless. 
+	my tidbit: does look pointless since you can link css files into html. However, does webpack do the same where it is included only when necessary?
+Imagine 
+	many JS files w/ JS components
+	each JS component is injecting varying elements/components into index.html file.
+Every time we use a component, 
+		could just require CSS needed, 
+		for particular component.
+	Instead of loading all CSS into index.html,
+		which might not need.
+.
+
+
+----------------------------------------
+`script-1.js` file
+----------------------------------------
+var message = require('./script-2');
+//video 5.
+require("./css/introComponent.css");
+//var message = "tempus fugit";
+//alert(message); //placed into `script-2.js` for step 07 of //video 2.
+	
+----------------------------------------
+`script-2.js` file
+----------------------------------------
+//var message = "tempus fugits";
+alert(message);
+
+----------------------------------------
+`index.js` file
+----------------------------------------
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Webpack</title>
+	</head>
+	<body>
+		<div id="body-content"></div>
+			<div class="intro-components">
+				<h1>CSS Loaders are Awesome</h1>
+			</div>
+		<script src="./dist/bundle.js"></script> //"./script-1.js"
+	</body>
+</html>
+
+	
+----------------------------------------
+`IntroComponent.css` file
+----------------------------------------
+.intro-component {
+	padding: 20px;
+	background: maroon;
+	color: #fff;
+	font-family: arial;
+}
+	
+----------------------------------------
+webpack.config.js file - user2's version
+----------------------------------------
+module.exports = {
+
+    //define entry point
+    entry: './src/script-1.js',
+
+    //define output point
+    output: {
+        path: 'dist',
+        filename: 'bundle.js'
+    },
+		//video 3 is everything above
+		//video 4&5 is everything included below
+     module: {
+        loaders: [
+            {
+                test: /\.js$/, //to only test on js files, not others like html file.
+                exclude: /(node_modules)/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
+                }
+            },
+            {
+                test: /\.scss$/,
+                loader: 'style-loader!css-loader!sass-loader' //order matter?
+            }
+        ] //loaders
+    } //module
+
+};
+
+
+*********************************************
+Video 6 - SASS Loader
+*********************************************
+https://youtu.be/gAJuZtvXvpk
+
+----------------------------------------
+About
+----------------------------------------
+Will convert CSS file to SASS file.
+Transpose SASS to CSS.
+Then require it.
+Basically, same as CSS in last video, but for SASS.
+
+Steps
+01. change `.css` extension to `.scss`
+02. Edit `introComponent.scss`
+	*see `introComponent.scss` below
+	Cool SASS features
+		create variables
+		Can next styles to target similar format.
+			h1 in intro-component targets h1 in intro-component, in index.html
+03. `npm install --save-dev node-sass sass-loader `
+	OR
+	`npm install -D node-sass sass-loader`
+04. update `webpack-config.js`
+	*see `webpack.config.js`
+05. edit script-1,
+	from: require("./css/introComponent.css");
+	to: require("./css/introComponent.scss");
+
+
+----------------------------------------
+SUMMARY
+----------------------------------------
+There is more to webpack, but this was beginner series.
+REACT series next.
+	Uses webpack dev server
+	Converting JSX code to vanilla JS
+.
+
+
+
+----------------------------------------
+`script-1.js` file
+----------------------------------------
+var message = require('./script-2');
+//video 5.
+require("./css/introComponent.scss"); //css to sass
+//var message = "tempus fugit";
+//alert(message); //placed into `script-2.js` for step 07 of //video 2.
+	
+----------------------------------------
+`script-2.js` file
+----------------------------------------
+//var message = "tempus fugits";
+alert(message);
+
+----------------------------------------
+`index.js` file
+----------------------------------------
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Webpack</title>
+	</head>
+	<body>
+		<div id="body-content"></div>
+			<div class="intro-components">
+				<h1>CSS Loaders are Awesome</h1>
+			</div>
+		<script src="./dist/bundle.js"></script> //"./script-1.js"
+	</body>
+</html>
+
+	
+----------------------------------------
+`IntroComponent.scss` file
+----------------------------------------
+$mainColour: #7777bb;
+
+.intro-component {
+	padding: 20px;
+	background: $mainColour;
+	color: #fff;
+	font-family: arial;
+	
+	h1{
+		text-transform: uppercase;
+	}
+}
+/* SASS
+	can create variables.
+	nest styles
+	!what h1 does is target h1 inside intro-component!
+	
+*/
+	
+----------------------------------------
+webpack.config.js file - user2's version
+----------------------------------------
+module.exports = {
+
+    //define entry point
+    entry: './src/script-1.js',
+
+    //define output point
+    output: {
+        path: 'dist',
+        filename: 'bundle.js'
+    },
+		//video 3 is everything above
+		//video 4&5 is everything included below
+     module: {
+        loaders: [
+            {
+                test: /\.js$/, //to only test on js files, not others like html file.
+                exclude: /(node_modules)/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
+                }
+            },
+            {
+                test: /\.scss$/,
+                loader: 'style-loader!css-loader!sass-loader' //order matter? if so, seems right to left and low to high level matters.
+            }
+        ] //loaders
+    } //module
+
+};
+
 	
 
 
 
 	
-====================================================================================
+================================================================
 1. ReactJs JS Intro & Workspace Setup
-====================================================================================
+================================================================
+
+**************************************
+Video 1: 
+**************************************
 
 
 ----------------------------------------
@@ -869,6 +1265,375 @@ module.exports = {
 
 
 	
+**************************************
+Video 2: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 3: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 4: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 5: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 6: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 7: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 8: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 9: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 10: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 11: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 12: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 13: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 14: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 15: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 16: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 17: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 18: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 19: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 20: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 21: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 22: 
+**************************************
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
+----------------------------------------
+
+----------------------------------------
+
+
+	
+**************************************
+Video 23: 
+**************************************
+
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+	
 ----------------------------------------
 
 ----------------------------------------
@@ -884,61 +1649,9 @@ module.exports = {
 
 
 
-
 ==========================================
 
 ==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
-
-
-==========================================
-
-==========================================
-
-
 
 
 

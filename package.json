@@ -21,5 +21,10 @@
   "homepage": "https://github.com/slopez15/ReactPractice#readme",
   "dependencies": {
     "webpack": "^3.6.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1"
   }
 }
