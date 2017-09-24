@@ -1,5 +1,7 @@
 /node_modules
 /dist #created later on.
+npm-debug.log
+
 
 # Uncomment if needed #
 #######################
@@ -28,6 +30,3 @@
 # IDE related files #
 #####################
 #.idea/
-
-
-

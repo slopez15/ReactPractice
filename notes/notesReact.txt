@@ -1,1256 +1,614 @@
-===================================================
-0. Pre-Material
-===================================================
-To know before starting...
-a. ES6
-b. Webpack
-========================================================================
-a1. ES6 - Part 1: https://youtu.be/AfWYO8t7ed4
-https://www.youtube.com/watch?v=AfWYO8t7ed4&index=1&list=PLoYCgNOIyGACDQLaThEEKBAlgs4OIUGif
-========================================================================
-How to write es6 while having es5 safe in browsers?
-	Use bablejs.io <-*
-	traceur
---------------------------------------
-Features
---------------------------------------
-//destructuring - think of it as passing vals to object vars like in constructors
-var foo = {
-	bar: 1, 
-	baz: 2
-};
---------------------------------------
-// EXAMPLE 1
---------------------------------------
-//instead of this
-	var bar = foo.bar;
-	var baz = foo.baz;
-//do this
-	var { bar, baz } = foo; 
-//snatch a variable/value and create a local version of it.
---------------------------------------
-// EXAMPLE 2
---------------------------------------
-	var tenses = ["me", "you", "he"];
-	var [ firstPerson, secondPerson ] = tenses;
-	//tip: spaces on left side to notify destructuring vs. creating an array.
---------------------------------------
-Where useful?
---------------------------------------
-Promise.all( [promise1, promise1] ).then( function(results) {
-	var [ results1 ] = results;
-});
-//OR destructure within function parameter
-Promise.all( [promise1, promise1] ).then( function( [ results1, results2 ] ) {
-	//can call results1 & results2 since destructured locally within function
-});
-//many new features not new, but makes things better. 
-	//CoffeeScript tried to do this, but became too much of its own language.
---------------------------------------
-destructure injection
---------------------------------------
-//insert into obj
-var foo = 2;
-var obj = {
-	bar: 1, 
-	foo, //insert value with it since it exists.
-};
-//insert into method
-var name = "Will";
-var age = 34; 
-some.method({ name, age });
-	//basically made this
-	{
-		name: name, 
-		age: age
-	}
-----------------------------------------
-w/ bracket notation inside object.
-----------------------------------------
-var name = "Will";
-obj = {
-	["name" + name]: "someValue";
-};
-//instead of
-obj = {};
-obj["name"+name]: "someValue";
 
-----------------------------------------
-Destructuring Arguments
-----------------------------------------
-function calcBMI (weight, height, max, callback){
-	var bmi = weight / Math.pow(height, 2);
-	if (bmi > max) {
-		console.log("Weight is too high. You are overweight.");
-	}
-	if (callback) {
-		callback(bmi);
-		
-	}
-}
-//the call
-calcBMI(weight, height);
-calcBMI(weight, height, function() {} );
-//have to edit parameter again! due to changes in function and may not use them all....
-calcBMI(weight, height, 25);
-calcBMI(weight, height, null, function() {} );
-
-//Problem: parameters are rigid and need to change a lot.
-//Solution: 
-	//older solution: PASS as an OBJect.
-		function calcBMI (opts){//see below}; //you would reference vars that may/not be there via if (opts.var)
-	//newer solution: DESCTRUCTURE object COMING IN!
-		function calcBMI ( { weight, height, max = 25, callback } ){ //DEFAULT ARGUMENTS allowed! //NO ORDER REQUIRED! //CAN CHANGE NAMING
-			var bmi = weight / Math.pow(height, 2);
-			if (bmi > max) {
-				console.log("Weight is too high. You are overweight.");
-			}
-			if (callback) {
-				callback(bmi);
-				
-			}
-		}
-calcBMI({ weight, height, max: 25 });
-calcBMI({ weight, height, callback: function() {} ); //can pass as undefined and function's default values will take care of it.
--------------------------------
-no order required example
--------------------------------
-calcBMI ( { height, max = 25, weight, callback } ){//see above} //notice parameter order differs above
-
--------------------------------
-Name Changing example
--------------------------------
-calcBMI ( { height: h, max = 25, weight: w, callback } ){//notice colon renaming vs equals sign default val assignment above
-
-
-----------------------------------------
-Template Strings
-----------------------------------------
-//OLD WAY. 
-	//If need to change 1 part of a string into a variable from static word.
-	//ex: J, once part of phrase, now needs to be interchangeable. Thus, add a var.
-var name = "James";
-var nickName = "";
-FROM: 
-	var greet = "Hello, my name is " + name + ", but you can call me J.";
-TO: 
-	var greet = "Hello, my name is " + name + ", but you can call me " + nickName + ".";
-	//there is also muli-line separation for visual purposes.
-var greet = "Hello, my name is \n" + 
-			name + ", but you can call me \n" + 
-			nickName + ".";
-
-//NEW WAY
-var greet = `Hello, my name is ${name}, but you can call me ${nickName}.`;
-	//multi-line. Just by making new lines?
-var greet = `Hello, my name is ${name}, 
-			but you can call me 
-			${nickName}.`;
-			
-========================================================================
-a2. ES6 - Part 2: https://youtu.be/LmL0Gh193M0
-https://www.youtube.com/watch?v=LmL0Gh193M0&list=PLoYCgNOIyGACDQLaThEEKBAlgs4OIUGif&index=2
-========================================================================
-
-----------------------------------------
-Block Scoping
-----------------------------------------
-//not appreciate, but more use, more appreciation.
-------------------
-function scoping
-------------------
-var a = 1;
-function (){
-	var b = 2;
-}
-console.log(b);
-------------------
-block scoping
-------------------
-//Hoisting b, because it is a var. To not hoist, use let.
-	var a = 1;
-	if (true) {
-		var b = 2;
-	}
-	console.log(b); //will now console log. 2.
-//the same as below...
-	var a = 1;
-	var b;
-	if (true) {
-		b = 2;
-	}
-	console.log(b); //will now console log. 2.
-//No Hoisting
-	var a = 1;
-	if (true) {
-		let b = 2;
-	}
-	console.log(b); //NO console log.
-//local instance for each loop
-	var a = 1;
-	for (20) {
-		let b = 2; //looping 20 times. Each time, create a new b variable that is new for that loop, then destroyed at the end of that loop.
-	}
-	console.log(b); //NO console log.
-/* Summary
-let is the new var. 
-never need var, unless for some strange reason where...
-	need to define a variable within a block and accessable to outside of block.
-However, correct way to define outside and reassign inside block if needed -- correct way to code.
-//correct
-	var a; 
-	if (true){
-		a = 20;
-	}
-//incorrect
-	if (true){
-		var a = 20;
-	}
-*/
-------------------
-const variable
-------------------
-//also block scoped.
-//cannot be overwritten. like final in Java.
-	//Cannot change object!, but can change contents of the object.
-//incorrect
-	const a = 1;
-	a = 2;
-//valid
-	const bar = {a: 1};
-	bar.a = 2;
-/*TIP: 
-	mutating a value... is something you usually don't want to do. 
-	think of using a METHOD instead.
-	const is PREFERRED.
-	Start with const, then if needed, use let.
-*/
-
-------------------
-classes!
-------------------
-//BEFORE - similar to how C++ had to add methods via Scope Resolution Operator (::).
-	//however, JavaScript used prototype and constructor kinda acted as the class too.
-function Parent (){
-	//const
-}
-Parent.prototype.foo = function (){}
-Parent.prototype.bar = function (){}
-
-//AFTER/NEW in ES6
-class Parent {
-	constructor(){
-		//stuff
-	}
-	foo (){
-		//stuff
-	}
-	bar (){
-		//stuff
-	}
-}
-
-var parent = new Parent ();
-parent.foo();
-
-
-//AFTER/NEW in ES7 has this static class properties
-class Parent {
-	age = 34; //<-- static attribute
-	constructor(){
-		//stuff
-	}
-	static foo (){ //<--
-		//stuff
-	}
-	bar (){
-		//stuff
-	}
-}
-class Child {
-	constructor (){
-		super();
-	}
-	baz(){
-		//stuff
-	}
-}
-var parent = new Parent ();
-parent.age;//34
-Parent.foo(); //static call to class's method, not an object's method //instead of parent.foo();
-var child = new Child ();
-child.baz();
-child.foo(); //incorrect
-child.bar();
-
----------------------------------------------------------------
-ARROW functions
----------------------------------------------------------------
-//May/not cover all ways on how to create a function.
-//method 1: function method. Official name is __.
-function foo (a, b){
-	return a+b;
-} //don't know if semi-colon needed.
-//method 2: var equal to function. Official name is __.
-var foo = function (a, b){
-	return a+b;
-};
-//NEW method 3: arrow 
-var foo = (a, b) => {
-	return a+b;
-}
-
-//may not seem much, but found helpful.
-----------------------------------------------------
-//when passing functions as arguments like callbacks
-----------------------------------------------------
-	//OLD
-	do.something (function (a, b) {
-		return a+b;
-	});	
-	//NEW "arrow" continued
-	do.something( (a, b) => {
-		return a+b;
-	});
-	//NEW "clean one line" bracket and semi-colon drop.
-	do.something( (a, b) => {return a+b;} );
-	//NEW "implicit returns" - one liners only. what is on right side gets automatically returns.
-	do.something( (a, b) => a+b );
-	//NEW "implicit returns" - one liners only. Also, if one argument, can drop parenthesis.
-	do.something( a => a++ );
-ex:
-	[0, 1, 2].map(val => val++); //[1, 2, 3]	
-//GREAT for underscore.js methods; mapping, filtering, sorting...
-
-----------------------------------------------------
-LEXICAL BINDING - Automatically binds context to arrow functions.
-----------------------------------------------------
-If creating a function and want to bind to arrow functions
-var module = {
-	age: 30, 
-	foo: function () {
-		console.log(this.age);
-	},
-	bar: function (){
-		setTimeout(function (){
-			console.log(this.age);
-		}.bind(this), 100);
-	},
-	baz: function (){
-		setTimeout( () => {
-			console.log(this.age);
-		}), 100;
-	}
-}
-module.foo(); //30
-module.bar(); //before couldn't access and needed to bind vars ex:".bind(this)" callbacks within the methods being called in the function; to have access to attributes outside the method.
-module.baz(); //cleaner way; automatically binds `this` with arrow functions and points to reference module object, the context in which you are in.
-------------------
-WHY IMPORTANT?!?
-------------------
-$("something").with().JQuery( () => {
-	$(this) //cannot do this anymore
-});
-//you have OVERRIDEN JQuery's value of this into the context that it is in.
-//normally JQuery sets value of $(this) to be event handler. OR
-//if using event binder, the event listener
-
-//TIP: USE `function` instead when using JQuery.
-$("something").with().JQuery( function () {
-	$(this) //cannot do this anymore
-});
-//this is preferred since you need JQUERY's this value OR DOM event listener.
-
--------------------------
-GENERATOR functions
--------------------------
-* new large power and especially to async
-* complicated 1st time around
-* covered separately.
-generators: https://www.youtube.com/watch?annotation_id=annotation_15064051&feature=iv&src_vid=LmL0Gh193M0&v=QO07THdLWQo
-
-----------------------------------------------------
-ES6 Modules
-----------------------------------------------------
-Module Systems; require. 
-//File 2 - "myModule.js"
-module.exports.foo = function () {
-	//stuff
-};
-module.exports.bar = function () {
-	//stuff
-};
-module.exports = function () { //just replace module.exports with a function itself.
-	//stuff
-};
-//ES6 modules
-export default function(){
-	//stuff
-}
-export function foo(){
-	//stuff
-}
-//to import these later, in another file.
-
-//OLD: REQUIRE METHOD
-//File 1 - "someName.js"
-	var myModule = require("myModule"); 
-	var foo = myModule.foo;
-	var bar = myModule.bar; //?Notice there is no parenthesis `()`
-//same as..
-	var foo = function () {//stuff}; //where function is from myModule.foo
-	var bar = function () {//stuff};
-//NEW: IMPORT METHOD
-	import myModule from "myModule"; //must be on top.
-	var foo = myModule.foo;
-//Destructure it.. obtain exported variables...
-	import { foo, bar } from "myModule"; //must be on top.
-	var foo = myModule.foo;
-	//This destructuralized import method is REAALLLL nice for lodash..
-//AS
-	import { foo as fool, bar } from "myModule";
-
-
--------------------------
-ASync Functions
--------------------------
-//can do this especially if using Babel.js to transpile.
-async function () {
-	var friends = await $.get("https://someSite.com/friends");
-	console.log(friends);
-}
-//basically a generator function, helps convert into a generator function.
-	//that returns a `Promise` and can add .then(). "then-able"
-//anywhere inside, instead of yield, you can await.
-//this helps write code as though you already received it.
-
-
-
---------------------------------------------------
-GENERATOR functions
---------------------------------------------------
-* new large power and especially to async
-* complicated 1st time around
-* covered separately.
-generators: https://youtu.be/QO07THdLWQo
-
--------------------------
-covering GENERATORS
--------------------------
-//most powerful feature of ES6 "Harmony"
-//Can use now with Google "Traceur"
-
-//defined by a `*` star after `function`
-//is a "pause-able" / iterable function
-var myGen = function* {
-	var one = yield 1;
-	var two = yield 2;
-	var three = yield 3;
-	console.log(one, two, three); 
-		//undefined, undefined, undefined; //"not 1", 4, 3
-};
-
-var gen = myGen (); //get the generator ready to run.
-
-console.log(gen.next()); //{value:1, done: false}
-console.log(gen.next("not 1")); //{value:2, done: false} //though 1 was yielded previously, may pass a value to overwrite first yield from undefined.
-console.log(gen.next(4)); //{value:3, done: false}
-console.log(gen.next(3)); //{value:undefined, done: true}
-console.log(gen.next()); //errors because you can't call `next()` on a closed generator
-//once program gets to `yield`, will stop running the function; while running other functions.
-//yield adverb sits after equal sign and before the value.
-/* How it works
-when you create the object nothing occurs until you call gen`.next()`
-it will run the function until complete, unless the program is to `yield`
-	should return the value which was yielded and a `done` boolean indicator with false.
-you must call gen`.next()`, until the function completed.
-	when it is complete, it will return an undefined value and a `done` boolean indicator with true. 
-If call gen`.next()` again, even after it finished, 
-	it will error cause the generator is closed; you cannot call gen`.next()`
-*/
-//To be continued....
-Generators: https://youtu.be/QO07THdLWQo?t=3m56s
-//cover promises before continuing...
-Promises: https://youtu.be/obaSQBBWZLk
-
-
-
-========================================================================
-b. WebPack
-========================================================================
-//Video from user1: https://youtu.be/9kJVYpOqcVU
-----------------------------------------
-Tidbits about react
-----------------------------------------
-great tech getting in 2015-2016
-Great for new developers and experienced developers
-a bit of a learning curve for both. 
-Video here about module loaders, mostly for new developers.
-WebPack is module loader of choice for React community. 
-
-----------------------------------------
-Module Loaders
-----------------------------------------
-3 module loaders - kinda out there.
-1. require.js
-2. Browserfy
-3. Webpack - pick this if doing React; feature-full required in some ways. 
-As of Jan 2016, 2&3 are challenging each other.
-
-//OLD METHOD
-	//1. scripts.js file w/ all modules.
-	//2. load external `script.js`
-		//<script src="js/script.js"></script>
-	//3. if too big, would...
-		//a. break modules apart and place in individual `script`.js files; thus multiple requests.
-		//b. some would build `script.js` that would concatenate all modules into one file and minify.
-		//^MODULE LOADER BUILD SYSTEM.
-			//Worth it for large systems.
-			//Can now code all modules separately and have entry point at script.js; "module path dependency"
-			//lets say there is an order that modules must be fired/executed. 
-				//you just require/import them in the order they must be requested.
-require("./module1.js");
-require("./module2.js");
-	//Browser JavaScript. Above will not work, cause it is commonJS module/code system that nodeJS uses. 
-	//Need, nodeJS to convert above into browser worthy format.	
-//NEW METHOD
-Use a MODULE LOADER
-
-Steps from the video:
-1. `npm init`
-2. `npm install -S webpack`
-3. `npm install -g webpack` //to run the command
-4. need/create a webpack.config.js file. 
-	contents below and example file link: https://gist.github.com/learncodeacademy/25092d8f1daf5e4a6fd3
-	tells webpack where to look and how to act
-5. `webpack`
-	it created scripts.min.js
-		is not minified, cause didn't run `webpack` w/ `process.env.NODE_ENV = "production"`
-		source mappings
-		brought module definitions
-		extra code added. Seems a lot for two console logs, but 
-			once get a whole application, 
-				this make code much simpler/cleaner.
-6. `NODE_ENV = production webpack`
-	scripts.min.js is minified
-7. `webpack`
-8. change external JavaScript link in html file 
-	from: <script src="js/script.js"></script>
-	to: <script src="js/script.min.js"></script>
-9. `open index.html`
-10. open browser console
-	NOTICE: modules are inside.
-11. go back to console log
-12. `npm install -S jquery`
-13. `npm install -S lodash`
-14. Lets say...
-	module1 = a jquery module //write jquery here
-	module2 = a lodash module //write lodash here
-15. `webpack` & refresh page
-	jquery
-		*see module1.js example below
-		should say newText
-		NOTICE: jquery not loaded inside global scope of page, like step 10. 
-			jquery only exists, where jquery needs to exist; in the module
-			if another module needed to require jquery, is ok, code won't be duplicated 
-				due to webpack
-				creates a module called jquery and assures it has been loaded in proper order.
-	lodash
-		*see module2.js example below
-		mockaroo.com
-			a. make 20 rows of random JSON data. 
-			b. click preview
-		paste data into people.
-		use lodash methods with deconstruction
-16. Go back to step 14, but same for lodash.
-
-
---------------------------------
-module1.js
---------------------------------
-var $ = require("jquery");
-$('h1').html("newText");
-
---------------------------------
-module2.js
---------------------------------
-var _ = require("lodash");
-$('h1').html("newText");
-var people = [{
-  "id": 1,
-  "first_name": "Gifford",
-  "last_name": "Daid",
-  "email": "gdaid0@yahoo.com",
-  "gender": "Male",
-  "ip_address": "50.24.180.154"
-}, {
-  "id": 2,
-  "first_name": "Tove",
-  "last_name": "Verriour",
-  "email": "tverriour1@twitpic.com",
-  "gender": "Female",
-  "ip_address": "81.51.130.41"
-}, {
-  "id": 3,
-  "first_name": "Aloisia",
-  "last_name": "Lindner",
-  "email": "alindner2@instagram.com",
-  "gender": "Female",
-  "ip_address": "108.166.130.204"
-}, {
-  "id": 4,
-  "first_name": "Fernanda",
-  "last_name": "Parkeson",
-  "email": "fparkeson3@joomla.org",
-  "gender": "Female",
-  "ip_address": "183.61.180.181"
-}, {
-  "id": 5,
-  "first_name": "Binny",
-  "last_name": "Jorcke",
-  "email": "bjorcke4@ocn.ne.jp",
-  "gender": "Female",
-  "ip_address": "46.153.237.105"
-}, {
-  "id": 6,
-  "first_name": "Saudra",
-  "last_name": "Tilford",
-  "email": "stilford5@hexun.com",
-  "gender": "Female",
-  "ip_address": "221.6.190.220"
-}, {
-  "id": 7,
-  "first_name": "Janelle",
-  "last_name": "Parnall",
-  "email": "jparnall6@nbcnews.com",
-  "gender": "Female",
-  "ip_address": "170.142.221.38"
-}, {
-  "id": 8,
-  "first_name": "Orrin",
-  "last_name": "Boays",
-  "email": "oboays7@feedburner.com",
-  "gender": "Male",
-  "ip_address": "70.37.52.164"
-}, {
-  "id": 9,
-  "first_name": "Kahaleel",
-  "last_name": "Evison",
-  "email": "kevison8@sohu.com",
-  "gender": "Male",
-  "ip_address": "170.211.48.195"
-}, {
-  "id": 10,
-  "first_name": "Genny",
-  "last_name": "Foster-Smith",
-  "email": "gfostersmith9@ihg.com",
-  "gender": "Female",
-  "ip_address": "253.13.86.38"
-}, {
-  "id": 11,
-  "first_name": "Mose",
-  "last_name": "Stopford",
-  "email": "mstopforda@cnet.com",
-  "gender": "Male",
-  "ip_address": "195.156.138.120"
-}, {
-  "id": 12,
-  "first_name": "Merwyn",
-  "last_name": "Potter",
-  "email": "mpotterb@printfriendly.com",
-  "gender": "Male",
-  "ip_address": "15.106.57.2"
-}, {
-  "id": 13,
-  "first_name": "Tammie",
-  "last_name": "Tuxell",
-  "email": "ttuxellc@cnbc.com",
-  "gender": "Female",
-  "ip_address": "230.24.82.57"
-}, {
-  "id": 14,
-  "first_name": "Davon",
-  "last_name": "Feltham",
-  "email": "dfelthamd@cbc.ca",
-  "gender": "Male",
-  "ip_address": "227.60.231.255"
-}, {
-  "id": 15,
-  "first_name": "Brittan",
-  "last_name": "McTaggart",
-  "email": "bmctaggarte@tripod.com",
-  "gender": "Female",
-  "ip_address": "122.222.181.121"
-}, {
-  "id": 16,
-  "first_name": "Benni",
-  "last_name": "Satterley",
-  "email": "bsatterleyf@blogspot.com",
-  "gender": "Female",
-  "ip_address": "23.71.142.227"
-}, {
-  "id": 17,
-  "first_name": "Britte",
-  "last_name": "MacKeeg",
-  "email": "bmackeegg@163.com",
-  "gender": "Female",
-  "ip_address": "30.37.71.58"
-}, {
-  "id": 18,
-  "first_name": "Rickey",
-  "last_name": "Tolefree",
-  "email": "rtolefreeh@wikimedia.org",
-  "gender": "Male",
-  "ip_address": "111.80.33.116"
-}, {
-  "id": 19,
-  "first_name": "Carlyle",
-  "last_name": "Luckman",
-  "email": "cluckmani@github.io",
-  "gender": "Male",
-  "ip_address": "215.10.65.198"
-}, {
-  "id": 20,
-  "first_name": "Melvin",
-  "last_name": "Ridgeway",
-  "email": "mridgewayj@ifeng.com",
-  "gender": "Male",
-  "ip_address": "11.73.140.99"
-}];
-
-var femaleCount = _.filter(people, { gender: "Female" }).length;
-alert(femaleCount + "females!")
-
-
---------------------------------
-webpack.config.js file
---------------------------------
-var debug = process.env.NODE_ENV !== "production";
-var webpack = require('webpack');
-
-module.exports = {
-  context: __dirname,
-  devtool: debug ? "inline-sourcemap" : null,
-  entry: "./js/scripts.js",
-  output: {
-    path: __dirname + "/js",
-    filename: "scripts.min.js"
-  },
-  plugins: debug ? [] : [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
-  ],
-};
-
-
-
-========================================
-----------------------------------------
-WebPack tutorials for Beginners
-//PlayList from user2: https://www.youtube.com/watch?v=ytRnPV0kRN0&list=PL4cUxeGkcC9iTQ3J5oa6orDIMQKKxl8dC
-----------------------------------------
-========================================
-
-*****************************************
-Video 1 - webpack? and course files
-*****************************************
-Need to know JS, CSS/SASS, HTML
-About: 
-	how to use course files and tools that'll be used.
-	what webpack is for and why it is good
-.
-GitHub: https://github.com/iamshaunjp/webpack-playlist
-	lessons not ordered by folder organization.
-	lessons are ordered by git branches! OMG!
-Steps:
-1. git clone. just explain at here.
-2. install node/npm
-	to install webpack
-3. install atom text editor
-	for helpful packages
-4. atom packages
-	ctrl+, aka install packages panel
-	a. atom-live-server
-		ctrl+shift+3 local server on port 3000
-		ctrl+shift+4 local server on port 4000
-		[3-5, 8, 9]
-	b. platformio-ide-terminal
-		to type terminal commands
-5. step 1. actually did it here. 
-	You are at "master branch"
-6. cd webpack-playlist
-7. git checkout lesson-1
-
-----------------------------------------
-webpack info
-----------------------------------------
--bundles JS files into one, minimizing http requests
--process SASS/LESS filess into CSS and only use them where needed. 
--convert JSX or ES2015 into vanilla JS which browsers understand
-	browsers cannot understand some/all JSX/ES2015 by default
-
-
-*********************************************
-Video 2 - installation and bundling JS files
-*********************************************
-00. localhost:3000 already running
-	127.0.0.1:3000/webpack-playlist
-01. Checkout Lesson 2: `git checkout lesson-2`
-02. npm init
-	package.js to track package dependencies
-03. npm install webpack --save-dev
-	save as a dev dependency
-	afterwards, 
-		node_modules folder appears.
-		devDependencies added in package.js
-04. Test if localhost is running
-	type something in index.html's <body></body>
-05. create `script-1.js` and write in it.
-	*see `script-1.js` code below
-06. link script file into index.html, then save.
-	should get an alert on localhost due to `script-1.js` file
-07. create `script-2.js` file
-	a. split `script-1.js` file code.
-		since js code is split & index.html only links to `script-1.js` file, cannot access the other half.
-	b. add require of `script-2.js` in `script-1.js`
-	c. `script-2.js` needs to allow `script-1.js` to have access to methods/variables/etc. via module.exports
-		*!still does not work if reload page!
-		why?
-			most browsers not support require of modules
-			need to run webpack
-				to gather modules into one file.
-		.
-08. `webpack script-1.js ./bundle.js`
-	format: `webpack` [entry-point] [ouputFile]
-09. Link `bundle.js` inside `index.html` instead of `script-1.js`
-10. If webpack not working, install globaly via
-	`npm install -g webpack`
-.
-
-*********************************************
-Video 3 - webpack.config.js file
-*********************************************
-https://youtu.be/sdoG5cCA5c4
-video 2 recap
-	2 scripts created. 
-	webpack to bundle into a single file 
-About:
-	config file will allow no need for
-		`webpack [entry] [output]`
-	instead will just do
-		`webpack`
-.
-Steps:
-01. create `webpack.config.js`
-	module.exports an object
-	*see below for `webpack.config.js`
-	*delete bundle.js since webpack.config will make new one.
-	*updated index.html for ./dist/bundle.js
-	* This tutorial, only added the [entry]&[output] for webpack.config
-
-
-*********************************************
-Video 4 - Babel Loader
-*********************************************
-https://youtu.be/H_QACBSqRBE
-About:
-	Loader? = help perform transformations on code.
-		kinda like how html has shivs
-		*since not all browsers support ES2015/JSX, can convert code into vanilla.js aka normal JavaScript
-		many loaders for many things, ex: SASS
-
-----------------------------------------
-How to use Babel Loader?
-----------------------------------------
-3 steps for babel-loader
-1. `npm install babel-core and babel-loader --save-dev`
-2. install presets that will be used for transformations
-	ex: 
-		if want to transform [eg.ES2015] code,
-		need to install [eg.ES2015] preset
-	
-3. configure webpack.config to tell it to use babel for transformation
-
-Links:
-babeljs.io
-	can use next generation JavaScript today.
-.
-Info
-	say you want to use ES2015. 
-		in: script-1.js
-		from: module.exports = "tempus fugits";
-		to: 
-			const mssg = "tempus fugits";
-			module.exports = mssg;
-	If ran with webpack, you will notice inside bundle.js that...
-		const is still used, cause webpack
-		has not converted it into vanilla JavaScript
-	This is why you need
-		babel-core
-		babel-loader 
-		babel-preset-_____
-			preset that we want to use is ES2015
-				*babel-preset-es2015 
-.
-
-01. `npm install babel-core babel-loader babel-preset-es2015 --save-dev`
-02. configure webpack.config to conduct transformations
-	*see webpack.config.js files below.
-03. `webpack`
-	see output-file 
-	can see const is changed into a variable.
-	"use strict" - is es5 for... 
-		"restricted variant of JavaScript"
-		*changes silent errors to throw errors
-			It catches some common coding bloopers, throwing exceptions.
-			It prevents, or throws errors, when relatively "unsafe" actions are taken (such as gaining access to the global object).
-			It disables features that are confusing or poorly thought out.
-	.
--------------------------------
-Summary
--------------------------------
-Above, so far, will convert es2015 to be browser ready vanilla code.
-Will cover how to convert for JSX for react. 
-
-
-----------------------------------------
-`script-1.js` file
-----------------------------------------
-var message = "tempus fugit";
-//alert(message); //placed into `script-2.js` for step 07 of video 2.
-	
-----------------------------------------
-`script-2.js` file
-----------------------------------------
-//var message = "tempus fugits";
-alert(message);
-
-----------------------------------------
-`index.js` file
-----------------------------------------
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Webpack</title>
-	</head>
-	<body>
-		<div id="body-content"></div>
-		<script src="./dist/bundle.js"></script> //"./script-1.js"
-	</body>
-</html>
-
-	
-----------------------------------------
-webpack.config.js file - user2's version
-----------------------------------------
-module.exports = {
-
-    //define entry point
-    entry: './src/script-1.js',
-
-    //define output point
-    output: {
-        path: 'dist',
-        filename: 'bundle.js'
-    },
-		//video 3 is everything above
-		//video 4&5 is everything included below
-     module: {
-        loaders: [
-            {
-                test: /\.js$/, //to only test on js files, not others like html file.
-                exclude: /(node_modules)/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
-                }
-            },
-            {
-                test: /\.scss$/,
-                loader: 'style-loader!css-loader!sass-loader'
-            }
-        ] //loaders
-    } //module
-
-};
-
-*********************************************
-Video 5 - CSS Loader
-*********************************************
-https://youtu.be/L1QMrPsPV5w
-
-----------------------------------------
-About
-----------------------------------------
-load only styles we need, into varying parts of app.
-	For example, If working with JS for dynamic content or injection,
-		//OLD
-			/split JS into different components
-			//each component can only load CSS needed for that component
-CSS becomes more modular and easier to manage.
-2 loaders (*must be together to work). 
-	1. css-loader
-		loads css into JS
-	2. style-loader	
-		adds css into the DOM
-.
-steps
-1. added 'div with class of intro-component' in index.html
-	added h1 tags in it with "CSS Loaders are Awesome"
-	The string above is to be styled
-2. created IntroComponent.css
-	*see file below for how it was set up.
-	There is nothing linking to this css file.
-3. `npm install --save-dev css-loader style-loader`
-	OR `npm install -D css-loader style-loader`
-4. configure webpacke
-	for new loaders added
-	*see `webpack.config.js` file.
-5. require `introComponent.css` in `javascript-1.js`
-6. `webpack`
-
-
-----------------------------------------
-Summary
-----------------------------------------
-Might think this is pointless. 
-	my tidbit: does look pointless since you can link css files into html. However, does webpack do the same where it is included only when necessary?
-Imagine 
-	many JS files w/ JS components
-	each JS component is injecting varying elements/components into index.html file.
-Every time we use a component, 
-		could just require CSS needed, 
-		for particular component.
-	Instead of loading all CSS into index.html,
-		which might not need.
-.
-
-
-----------------------------------------
-`script-1.js` file
-----------------------------------------
-var message = require('./script-2');
-//video 5.
-require("./css/introComponent.css");
-//var message = "tempus fugit";
-//alert(message); //placed into `script-2.js` for step 07 of //video 2.
-	
-----------------------------------------
-`script-2.js` file
-----------------------------------------
-//var message = "tempus fugits";
-alert(message);
-
-----------------------------------------
-`index.js` file
-----------------------------------------
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Webpack</title>
-	</head>
-	<body>
-		<div id="body-content"></div>
-			<div class="intro-components">
-				<h1>CSS Loaders are Awesome</h1>
-			</div>
-		<script src="./dist/bundle.js"></script> //"./script-1.js"
-	</body>
-</html>
-
-	
-----------------------------------------
-`IntroComponent.css` file
-----------------------------------------
-.intro-component {
-	padding: 20px;
-	background: maroon;
-	color: #fff;
-	font-family: arial;
-}
-	
-----------------------------------------
-webpack.config.js file - user2's version
-----------------------------------------
-module.exports = {
-
-    //define entry point
-    entry: './src/script-1.js',
-
-    //define output point
-    output: {
-        path: 'dist',
-        filename: 'bundle.js'
-    },
-		//video 3 is everything above
-		//video 4&5 is everything included below
-     module: {
-        loaders: [
-            {
-                test: /\.js$/, //to only test on js files, not others like html file.
-                exclude: /(node_modules)/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
-                }
-            },
-            {
-                test: /\.scss$/,
-                loader: 'style-loader!css-loader!sass-loader' //order matter?
-            }
-        ] //loaders
-    } //module
-
-};
-
-
-*********************************************
-Video 6 - SASS Loader
-*********************************************
-https://youtu.be/gAJuZtvXvpk
-
-----------------------------------------
-About
-----------------------------------------
-Will convert CSS file to SASS file.
-Transpose SASS to CSS.
-Then require it.
-Basically, same as CSS in last video, but for SASS.
-
-Steps
-01. change `.css` extension to `.scss`
-02. Edit `introComponent.scss`
-	*see `introComponent.scss` below
-	Cool SASS features
-		create variables
-		Can next styles to target similar format.
-			h1 in intro-component targets h1 in intro-component, in index.html
-03. `npm install --save-dev node-sass sass-loader `
-	OR
-	`npm install -D node-sass sass-loader`
-04. update `webpack-config.js`
-	*see `webpack.config.js`
-05. edit script-1,
-	from: require("./css/introComponent.css");
-	to: require("./css/introComponent.scss");
-
-
-----------------------------------------
-SUMMARY
-----------------------------------------
-There is more to webpack, but this was beginner series.
-REACT series next.
-	Uses webpack dev server
-	Converting JSX code to vanilla JS
-.
-
-
-
-----------------------------------------
-`script-1.js` file
-----------------------------------------
-var message = require('./script-2');
-//video 5.
-require("./css/introComponent.scss"); //css to sass
-//var message = "tempus fugit";
-//alert(message); //placed into `script-2.js` for step 07 of //video 2.
-	
-----------------------------------------
-`script-2.js` file
-----------------------------------------
-//var message = "tempus fugits";
-alert(message);
-
-----------------------------------------
-`index.js` file
-----------------------------------------
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Webpack</title>
-	</head>
-	<body>
-		<div id="body-content"></div>
-			<div class="intro-components">
-				<h1>CSS Loaders are Awesome</h1>
-			</div>
-		<script src="./dist/bundle.js"></script> //"./script-1.js"
-	</body>
-</html>
-
-	
-----------------------------------------
-`IntroComponent.scss` file
-----------------------------------------
-$mainColour: #7777bb;
-
-.intro-component {
-	padding: 20px;
-	background: $mainColour;
-	color: #fff;
-	font-family: arial;
-	
-	h1{
-		text-transform: uppercase;
-	}
-}
-/* SASS
-	can create variables.
-	nest styles
-	!what h1 does is target h1 inside intro-component!
-	
-*/
-	
-----------------------------------------
-webpack.config.js file - user2's version
-----------------------------------------
-module.exports = {
-
-    //define entry point
-    entry: './src/script-1.js',
-
-    //define output point
-    output: {
-        path: 'dist',
-        filename: 'bundle.js'
-    },
-		//video 3 is everything above
-		//video 4&5 is everything included below
-     module: {
-        loaders: [
-            {
-                test: /\.js$/, //to only test on js files, not others like html file.
-                exclude: /(node_modules)/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015'] //which presets to use jsx, or es2015, etc.
-                }
-            },
-            {
-                test: /\.scss$/,
-                loader: 'style-loader!css-loader!sass-loader' //order matter? if so, seems right to left and low to high level matters.
-            }
-        ] //loaders
-    } //module
-
-};
-
-	
-
-
-
-	
 ================================================================
 1. ReactJs JS Intro & Workspace Setup
 ================================================================
+Series: https://www.youtube.com/watch?v=MhkGQAoc7bc&list=PLoYCgNOIyGABj2GQSlDRjgvXtqfDxKm5b
+GitHub: https://github.com/learncodeacademy/react-js-tutorials
 
-**************************************
-Video 1: 
-**************************************
+
+
+*****************************************
+Video 01: ReactJS Intro & Workspace Setup
+*****************************************
+https://youtu.be/MhkGQAoc7bc
+----------------------------------------
+About
+----------------------------------------
+REACT changes way you think...
+Concepts introduced to creating stable web apps.
+Prerequisites:
+	ES6
+	WebPack
+.
+	
+----------------------------------------
+Info
+----------------------------------------
+Got files from github...
+	webpack
+	webpack --watch
+		as we save, client.min.js gets updated
+React basics/methodology
+	* "AS everything is an element in HTML," 
+	* "everything is a component in React"
+	* "rendering engine is Separate from react syntax!"
+	import
+		import React from "react";
+			can render to many things
+		import ReactDOM from "react-dom";
+			*! rendering engine to dom aka our active webPage
+	Creating Component Structure
+		class file extends React Component
+		need render method in component	
+			render(){return (//JSX here); }
+		if ever want to render a component...
+			use it as if an html tag
+			ReactDOM.render(<Layout/>, app); //forward-slash necessary? 
+				renders `Layout` component in app div
+//OLD
+var div = document.createElement("div");
+div.innerHTML = "some content";
+//NEW
+	//Where Layout is a class component.
+const app = document.getElementById('app');
+ReactDOM.render(<Layout/>, app);
+
+Live reloading
+	some IDEs have this, 
+	but `webpack-dev-server` may be better 
+		so page rendered from webpack output file directly.
+
+global to local with npm's run scripts.
+//OLD
+	`npm install -g webpack-dev-server`
+	`webpack-dev-server` etc...
+//NEW
+	`npm install -D webpack-dev-server` OR `npm install -S webpack-dev-server`
+	inside package.json's... 'scipts': {"subCommand": "cmdLn"} 
+		apply something similar as below:
+		"./node_modules/.bin/webpack-dev-server" -flagsIfNeeded
+.
+
+*****************************************
+Video 02: Reactjs Components & Rendering
+*****************************************
+https://youtu.be/fd2Cayhez58
+----------------------------------------
+About
+----------------------------------------
+Should be set up.
+Everything in REACT is a component.
+*Components return exactly one DOM element.
+	like HTML, everything must have one parent DOM element.	
+
+-----------------------------
+1 DOM Element + more via div
+-----------------------------
+class Layout extends React Component {
+	render(){
+		return (
+			<div>//CORRECT 
+				<h1>It is working!</h1>
+				//<h1>It is working!</h1> //INCORRECT //if placed another element here, would error out.
+				<h1>It is working!</h1>
+			</div>
+		);
+	}//render
+}//Layout Component
+//render component into app div.
+const app = document.getElementById("app");
+ReactDOM.render(<Layout/>, app);
+
+-----------------------------
+Dynamic
+-----------------------------
+class Layout extends React Component {
+		//Best to place logic outside render!
+	constructor (){
+		super();
+		this.name1 = "will";
+	}
+	
+	getVal(){
+		return "James";
+	}
+	
+	render(){
+		const name = "Will";
+			//Place logic outside return!
+		return (
+				<h1>{this.getVal()}, it is working for { name } and {this.name1}!</h1>
+			</div>
+		);
+	}//render
+}//Layout Component
+//render component into app div.
+const app = document.getElementById("app");
+ReactDOM.render(<Layout/>, app);
+
+
+	
+*****************************************
+Video 03: Composing Multiple React.js Components
+*****************************************
+https://youtu.be/vu_rIMPROoQ
+----------------------------------------
+About
+----------------------------------------
+Move out of single component
+Move into entire Layout made of React components
+
+----------------------------------------
+Design
+----------------------------------------
+`client.js`
+	import React from "react";
+	import ReactDOM from "react-dom";
+	
+	//The overall component.
+	import Layout from "./components/Layout";
+
+	const app = document.getElementById('app');
+	ReactDOM.render(<Layout/>, app);
+//Keep component in its own folder
+
+`Layout.js`
+	import React from "react.js"
+	import Footer from "Footer.js";
+	import Header from "Header.js";
+
+	export default class Layout extends React Component {
+		constructor(){
+			super();
+			this.name = "Will";
+			this.list = [
+				<li>,
+				<li>,
+				<li>,
+			];
+			
+		}//constructor
+		
+		render(){
+			var attribute = "cool";
+			return (
+				<div>
+					<Header />
+					<ul>This is {this.name}'s unordered {attribute} list.
+						{this.list}
+					</ul>
+					<Footer />
+				</div>
+			);
+		}//render		
+		
+	}//class - Layout
+//I coudn't create a variable in the class itself and called within render's return.
+//2 places I can are: class's constructor & render().
+//Keep imports alphabetized for easy lookup.
+
+`Header.js` & ~Footer.js
+import React from "react";
+export default class Header extends React Component {
+	render(){
+		return (
+			<footer>footer</footer>
+		);
+	}
+}
+//above is just a display for the above's imports of Header&Footer
+................................................
+----------------------------------------
+Summary
+----------------------------------------
+To avoid getting messy in the main js file, the main js file only job may be to render the main component.
+The main component can have the overall set up the other components.
+Break down all the components to the smallest possible.
+A component may use the other components by 
+	importing.
+	Using tag via class name. Similar to XML custom tag defining.
+Next time...
+	Passing values into components--many ways.
+		-One was covered, but not explained in video 3 via using class components and JSX.
+		-more?...
+
+
+
+*****************************************
+Video 04: State vs Props & Application Data
+*****************************************
+https://youtu.be/qh3dYM6Keuw
+----------------------------------------
+About
+----------------------------------------
+* How Data is managed in React.
+1st great feature of react.
+
+2 ways data gets handled.
+1. state
+2. props
+3. context - but, this is an advanced feature. Also, API is not stablalize guaranteed. 
+
+----------------------------------------
+State
+----------------------------------------
+this.state = null; //by default.
+*Manages a VIRTUAL DOM
+	-when state changes on a component, component will re-render.
+	-doesn't touch DOM until Virtual DOM is.
+	-whenever React renders component tree, it looks for changes in Virtual DOM to actual DOM.
+*WHY IS IT GREAT!
+	-JavaScript is fast, DOM is slow. 
+	-Whenever, need to update DOM, that is the slowest part.
+	-my tidbit: this is similar to what is said about JQuery, and you had to manually be wary of not editing DOM when there was no need to.
+		-kinda like Java String Builder, no changes or objects/strings/etc made until it is finalized.
+WHAT IS REACT DOING BEHIND SCENES.
+	*On Chrome's console, click `escape` key for rendering options.
+		-enable paint flashing
+			this helps to see which parts of DOM changes.
+	React manages DOM
+	//OLD Qs
+		When should I update DOM?
+		When I do, who should? - list component or each list item render itself.
+	//New Solution
+		Re-render everything, all the time, on any change, but only in JS, only touch DOM if something changed visually.
+MENTALLITY of STATE
+	state only gets used, if component has an internal value that only affects that component.
+		When to use?
+			If you have something that only affects a certain component
+		Otherwise used props.
+.
+
+//in a class component's constructor
+constructor (){
+	super();
+	this.state = {name: "Will"};
+}
+render(){
+	setTimeout( () => {
+		//say user fired some action, this action.
+		this.setState({name: "Bob"});
+	}, 1000);
+	return(){
+		<div>
+			{this.state.name}
+		</div>
+	}
+}
+	
+----------------------------------------
+Props *more popular.
+----------------------------------------
+this.props.[]
+* props are injected into every other components.
+They are basically the attributes of an element
+As props are to that of a Component.
+
+`Layout.js` with prop
+	import React from "react";
+
+	import Footer from "./Footer";
+	import Footer from "./Header";
+
+	export default class Layout extends React Component {
+		render(){
+			const title = "Welcome Will!";
+			return(){
+				<div>
+					<Header name={"Thing1"} title={title} />
+					<Header name={"Thing2"} title={title} />
+				</div>
+			}
+		}
+	}
+//notice how props were inject with curly braces as a variable and a value.
+//Can create another component and insert props, change values, etc.
+	//Acts like an XML of JavaScript in JSON for states and is customizable constructor-like, but not really.
+.
+
+`Header.js` designed with above
+	import React from "react";
+
+	//importing other components
+	import Footer from "./Header/Title";
+
+	export default class Header extends React Component {
+		render(){
+			//console.log(this.props);
+			return(){
+				<div>
+					<Title title={this.props.title} /> //!!!
+					
+				</div>
+			}
+		}
+	}//Component
+//notice title props in Title component tag.
+//it act as if it is waiting if a title prop, in props, was passed via a call of the component in another component. Doesn't know what props are going to be passed.
+//Acts more like C++'s variable passing hierarchy where the 3rd class, extending a 2nd class that extends the 1st class, needs to pass a value to the 2nd class that will capture that variable (not value) and pass it into 1st class's variable.
+[class 1] var1 = 1
+[class 2] var2 = var1
+[class 3] var3 = var2
+.
+`Title.js` designed with above
+	import React from "react";
+
+	export default class Title extends React Component {
+		render(){
+			//console.log(this.props);
+			return(){
+				<div>
+					<h1>title={this.props.title} </h1> //!!!
+				</div>
+			}
+		}
+	}//Component
+.
+//Basically "transparently" passing value through.
+.
+.
+.
+----------------------------------------
+Mixing Props and States
+----------------------------------------
+`Layout.js`
+	import React from "react";
+
+	import Footer from "./Footer";
+	import Footer from "./Header";
+
+	export default class Layout extends React Component {
+		constructor (){
+			super();
+			this.state = {
+				title: "Nice to meet you."
+			};
+		}
+		render(){
+			const title2 = "Welcome Will!";
+			setTimeout( () => {
+				this.setState({title: "Welcome Will!"});
+			}, 2000);
+			return(){
+				<div>
+					<Header name={"Thing1"} title={this.state.title} />
+					<Header name={"Thing2"} title={title2} />
+				</div>
+			}
+		}
+	}
+.
+//WHAT HAPPENED W/ MIX?
+	Did what was expected.
+		It showed components and the change after 2 sec. ~ to state prob.
+//WHAT GOT UPDATE?
+	Only header component changed.
+	Though variable passed to Layout, change occurred in Header's div. To be more precise, the Title component itself lying within Header.
+.
+.
+.................................
+`Header.js`
+	import React from "react";
+
+	//importing other components
+	import Footer from "./Header/Title";
+
+	export default class Header extends React Component {
+		render(){
+			//console.log(this.props);
+			return(){
+				<div>
+					<Title title={this.props.title} /> //!!!
+					
+				</div>
+			}
+		}
+	}//Component
+.
+.
+.................................
+`Title.js` designed with above
+	import React from "react";
+
+	export default class Title extends React Component {
+		render(){
+			//console.log(this.props);
+			return(){
+				<div>
+					<h1>title={this.props.title} </h1> //!!!
+				</div>
+			}
+		}
+	}//Component
+.
+
+----------------------------------------
+Summary
+----------------------------------------
+**look in 'About'
+
+	
+*****************************************
+Video 05: Events & Data Changes in React
+*****************************************
+https://youtu.be/_D1JGNidMr4
+----------------------------------------
+About
+----------------------------------------
+binding events
+interacting with User input
+Changing data real-time
+	
+----------------------------------------
+input
+----------------------------------------
+.
+//As input header gets typed, will want to trigger an event in layout to update the layout's state.
+.
+.
+...........................
+`Layout.js`
+import React from "react";
+
+import Footer from "./Footer";
+import Footer from "./Header";
+
+export default class Layout extends React Component {
+	constructor (){
+		super();
+		this.state = {
+			title: "Welcome",
+		};
+	}
+	
+	//!!!
+	changeTitle(title){
+		this.setState({ title });		
+	}
+	
+	render(){
+		const title2 = "Howdy Yall!";
+		return(){
+			<div>
+				<Header name={"Thing1"} changeTitle={this.changeTitle.bind(this)} title={this.state.title} />
+				
+				<Header name={"Thing2"} title={title2} />
+			</div>
+		}
+	}
+}
+.
+//VERY IMPORTANT:
+	When passing around methods, ALWAYS bind them to 'this'.
+	If don't do `.bind(this)`, will execute in context to whoever is calling it.
+		my tidbit: existence critical override.
+		ex: 
+			in Header, if did this: this.props.changeTitle();
+			It is like calling the method in Header, which may/may not exist, and executing it.
+			this.setState({ title }), is ran and is silent failure. Like what happens with 'use strict'.
+.
+.
+...............................
+Edit `Header.js` w/ variation
+
+handleChange(e){
+	const title = e.target.value;
+	this.props.changeTitle(title);
+}
+render(){
+	return(){
+		<div>
+			//<h1>title={this.props.title} </h1>
+			<Title title={this.props.title}> </Title>
+			<input onChange={this.handleChange.bind(this)} />
+		</div>
+	}
+}
+.
+//added input and an onChange prop to input
+//handleChange receives an event like normal
+//events: onChange, onClick, onBlur
+//!! on event, fires this into the function be called to handle.
+//*!! if you are writing in an input and nothing happens on screen , like characters not showing. Might mean you need to check if even prop has been included.
+.
+.
+.
+.................................
+`Title.js` is the same...
+import React from "react";
+
+export default class Title extends React Component {
+	render(){
+		return(){
+			<div>
+				<h1>title={this.props.title} </h1> //!!!
+			</div>
+		}
+	}
+}//Component
+.
+.
+----------------------------------------
+Summary
+----------------------------------------
+.
+.
+.
+*****************************************
+Video 06: React Router & Intro to Single Page Apps with React 
+*****************************************
+https://youtu.be/1iAG6h9ff5s
+GitHub: I think this is when second folder is finally used. "2-react-router"
+----------------------------------------
+About
+----------------------------------------
+-single page apps.
+-try not leave people behind.
+-not too slow/beginner for those experienced with Angular, Backbone, Ember, [other single page application frameworks] etc.
+	
+----------------------------------------
+Info from presenter
+----------------------------------------
+Single page application:: navigate + everything else, without leaving page.
+Wanted more then boring HTML, so went to 
+	*Bootstrap.com
+		got basic theme.
+	*stripped out jquery
+	*Bootswatch for a different CSS theme.
+	Bootstrap WithoutJQuery.js GitHub repository.
+		lightweight script to replace JQuery. 
+		for simple things like, drop downs, hamburger icons, etc.
+Result: 
+	an long html page designed for certain purpose.
+	still has everything from last folder (videos [1-5])
+		bootstrap
+		client.min.js
+		div id="app"
+Files
+`client.js`
+	mostly the same. 
+		loading layout, binding app, and rendering it.
+	new
+		loading Bootstrap without js.
+Routing:: 
+	This is where when you click on buttons, can route to different pages/states of the application wo/leaving the page via JS.
+IMPORTANT UPDATE ON INFO:
+	Recap:
+		>>npm run script to {"dev": "./node_modules/bin/webpack-dev-server"}
+	Can do:
+		without calling within node_modules in place of global installation.
+		>>npm run script to {"dev": "webpack-dev-server"}
+			Why?
+				automatically adds "./node_modules/.bin/"<path>
+	What I know:
+		If i remember right and if for the same reason, 
+			a command within the directory can search in tree of node_modules, node_modules inside node_modules inside etc.
+.
+----------------------------------------
+Steps
+----------------------------------------
+//! not covered, just follow the vid....
+Will be converting static HTML to dynamic.
+	KillerNews.net was the only dynamic bit.
+01. Set up Routing
+02. 
+.
+.
+----------------------------------------
+
+----------------------------------------
+
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+
+*****************************************
+Video 07: 
+*****************************************
 
 
 ----------------------------------------
@@ -1265,9 +623,9 @@ Video 1:
 
 
 	
-**************************************
-Video 2: 
-**************************************
+*****************************************
+Video 08: 
+*****************************************
 
 
 ----------------------------------------
@@ -1282,9 +640,9 @@ Video 2:
 
 
 	
-**************************************
-Video 3: 
-**************************************
+*****************************************
+Video 09: 
+*****************************************
 
 
 ----------------------------------------
@@ -1299,111 +657,9 @@ Video 3:
 
 
 	
-**************************************
-Video 4: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
-Video 5: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
-Video 6: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
-Video 7: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
-Video 8: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
-Video 9: 
-**************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-	
-----------------------------------------
-
-----------------------------------------
-
-
-	
-**************************************
+*****************************************
 Video 10: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1418,9 +674,9 @@ Video 10:
 
 
 	
-**************************************
+*****************************************
 Video 11: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1435,9 +691,9 @@ Video 11:
 
 
 	
-**************************************
+*****************************************
 Video 12: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1452,9 +708,9 @@ Video 12:
 
 
 	
-**************************************
+*****************************************
 Video 13: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1469,9 +725,9 @@ Video 13:
 
 
 	
-**************************************
+*****************************************
 Video 14: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1486,9 +742,9 @@ Video 14:
 
 
 	
-**************************************
+*****************************************
 Video 15: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1503,9 +759,9 @@ Video 15:
 
 
 	
-**************************************
+*****************************************
 Video 16: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1520,9 +776,9 @@ Video 16:
 
 
 	
-**************************************
+*****************************************
 Video 17: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1537,9 +793,9 @@ Video 17:
 
 
 	
-**************************************
+*****************************************
 Video 18: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1554,9 +810,9 @@ Video 18:
 
 
 	
-**************************************
+*****************************************
 Video 19: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1571,9 +827,9 @@ Video 19:
 
 
 	
-**************************************
+*****************************************
 Video 20: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1588,9 +844,9 @@ Video 20:
 
 
 	
-**************************************
+*****************************************
 Video 21: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1605,9 +861,9 @@ Video 21:
 
 
 	
-**************************************
+*****************************************
 Video 22: 
-**************************************
+*****************************************
 
 
 ----------------------------------------
@@ -1622,9 +878,9 @@ Video 22:
 
 
 	
-**************************************
+*****************************************
 Video 23: 
-**************************************
+*****************************************
 
 
 
@@ -1652,20 +908,6 @@ Video 23:
 ==========================================
 
 ==========================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
