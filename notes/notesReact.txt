@@ -227,7 +227,7 @@ About
 2 ways data gets handled.
 1. state
 2. props
-3. context - but, this is an advanced feature. Also, API is not stablalize guaranteed. 
+3. context - but, this is an advanced feature. Also, API is not stabilize guaranteed. 
 
 ----------------------------------------
 State
@@ -269,11 +269,11 @@ render(){
 		//say user fired some action, this action.
 		this.setState({name: "Bob"});
 	}, 1000);
-	return(){
+	return(
 		<div>
 			{this.state.name}
 		</div>
-	}
+	);
 }
 	
 ----------------------------------------
@@ -293,12 +293,12 @@ As props are to that of a Component.
 	export default class Layout extends React Component {
 		render(){
 			const title = "Welcome Will!";
-			return(){
+			return(
 				<div>
 					<Header name={"Thing1"} title={title} />
 					<Header name={"Thing2"} title={title} />
 				</div>
-			}
+			);
 		}
 	}
 //notice how props were inject with curly braces as a variable and a value.
@@ -315,12 +315,12 @@ As props are to that of a Component.
 	export default class Header extends React Component {
 		render(){
 			//console.log(this.props);
-			return(){
+			return(
 				<div>
 					<Title title={this.props.title} /> //!!!
 					
 				</div>
-			}
+			);
 		}
 	}//Component
 //notice title props in Title component tag.
@@ -336,11 +336,11 @@ As props are to that of a Component.
 	export default class Title extends React Component {
 		render(){
 			//console.log(this.props);
-			return(){
+			return(
 				<div>
 					<h1>title={this.props.title} </h1> //!!!
 				</div>
-			}
+			);
 		}
 	}//Component
 .
@@ -369,12 +369,12 @@ Mixing Props and States
 			setTimeout( () => {
 				this.setState({title: "Welcome Will!"});
 			}, 2000);
-			return(){
+			return(
 				<div>
 					<Header name={"Thing1"} title={this.state.title} />
 					<Header name={"Thing2"} title={title2} />
 				</div>
-			}
+			);
 		}
 	}
 .
@@ -396,12 +396,12 @@ Mixing Props and States
 	export default class Header extends React Component {
 		render(){
 			//console.log(this.props);
-			return(){
+			return(
 				<div>
 					<Title title={this.props.title} /> //!!!
 					
 				</div>
-			}
+			);
 		}
 	}//Component
 .
@@ -413,11 +413,11 @@ Mixing Props and States
 	export default class Title extends React Component {
 		render(){
 			//console.log(this.props);
-			return(){
+			return(
 				<div>
 					<h1>title={this.props.title} </h1> //!!!
 				</div>
-			}
+			);
 		}
 	}//Component
 .
@@ -468,13 +468,13 @@ export default class Layout extends React Component {
 	
 	render(){
 		const title2 = "Howdy Yall!";
-		return(){
+		return(
 			<div>
 				<Header name={"Thing1"} changeTitle={this.changeTitle.bind(this)} title={this.state.title} />
 				
 				<Header name={"Thing2"} title={title2} />
 			</div>
-		}
+		);
 	}
 }
 .
@@ -496,13 +496,13 @@ handleChange(e){
 	this.props.changeTitle(title);
 }
 render(){
-	return(){
+	return(
 		<div>
 			//<h1>title={this.props.title} </h1>
 			<Title title={this.props.title}> </Title>
 			<input onChange={this.handleChange.bind(this)} />
 		</div>
-	}
+	);
 }
 .
 //added input and an onChange prop to input
@@ -519,11 +519,11 @@ import React from "react";
 
 export default class Title extends React Component {
 	render(){
-		return(){
+		return(
 			<div>
 				<h1>title={this.props.title} </h1> //!!!
 			</div>
-		}
+		);
 	}
 }//Component
 .
@@ -531,6 +531,13 @@ export default class Title extends React Component {
 ----------------------------------------
 Summary
 ----------------------------------------
+
+
+/*--*//*--*/
+SEE OVERVIEW SECTION TO REVIEW 1-5
+
+
+
 .
 .
 .
@@ -545,11 +552,14 @@ About
 -single page apps.
 -try not leave people behind.
 -not too slow/beginner for those experienced with Angular, Backbone, Ember, [other single page application frameworks] etc.
-	
+*Shows how to make 1st few Routes, 
+	THEN, break page out in the next video
+.
+
 ----------------------------------------
 Info from presenter
 ----------------------------------------
-Single page application:: navigate + everything else, without leaving page.
+*Single page application:: navigate + everything else, without leaving page.
 Wanted more then boring HTML, so went to 
 	*Bootstrap.com
 		got basic theme.
@@ -566,13 +576,13 @@ Result:
 		div id="app"
 Files
 `client.js`
-	mostly the same. 
-		loading layout, binding app, and rendering it.
+	same -- for the most part. 
+		loading/importing layout, binding id app, and rendering it.
 	new
-		loading Bootstrap without js.
-Routing:: 
+		loading/importing Bootstrap without js.
+*Routing:: 
 	This is where when you click on buttons, can route to different pages/states of the application wo/leaving the page via JS.
-IMPORTANT UPDATE ON INFO:
+IMPORTANT UPDATE ON NPM Script:
 	Recap:
 		>>npm run script to {"dev": "./node_modules/bin/webpack-dev-server"}
 	Can do:
@@ -580,10 +590,31 @@ IMPORTANT UPDATE ON INFO:
 		>>npm run script to {"dev": "webpack-dev-server"}
 			Why?
 				automatically adds "./node_modules/.bin/"<path>
-	What I know:
-		If i remember right and if for the same reason, 
-			a command within the directory can search in tree of node_modules, node_modules inside node_modules inside etc.
+				What I know:
+					If i remember right and if for the same reason, 
+						a command within the directory can search in tree of node_modules, node_modules inside node_modules inside etc.
 .
+Library Usage to pay attention to...
+Bootstrap HTML
+{Router, Route, IndexRoute, hashHistory, Link} from react-router
+	-in RENDER
+	Router is like the base REST to components
+		is given prop.history={hashHistory}
+		hashHistory
+			seems to be a collection of functions.
+	Route is like the REST to components
+		props to pass: path, component
+	IndexRoute
+		default index route.
+		is like the slash to introduce sub-routes
+	Link
+		same as anchor
+		prop: to
+	The Unexplained
+		props.children
+			probably from Routes
+			value is the Route we clicked on
+.	
 ----------------------------------------
 Steps
 ----------------------------------------
@@ -591,55 +622,261 @@ Steps
 Will be converting static HTML to dynamic.
 	KillerNews.net was the only dynamic bit.
 01. Set up Routing
-02. 
+	`npm install -S react-router history@1`
+	TIP: copy 2-react-router folder from repo
+02. Edit `client.js`
+	added Router and 1st Route
+03. Create React Components for each 'page'
+	Featured
+	Archives
+	Settings
+04. Import 'page' into client
+05. Edit `client.js`
+	added IndexRoute for Featured
+	Then, Route for each 'page' w/path
+06. Edit `Layout.js`
+	link pages and add button design.
+	Add button w/ event
+		`navigate` event
+			print props
+			use props.history methods
+				.pushState(null, "")
+				.replaceState(null, "")
+.
+----------------------------------------
+`client.js`
+----------------------------------------
+import Bootstrap from "./vendor/bootstrap-without-jquery";
+import { Router, Route, IndexRoute, hashHistory} from "react-router";
+
+//Pages aka IndexRoute aka sub-routes
+import Archives from "./pages/Archives";
+import Featured from "./pages/Featured";
+import Layout from "./pages/Layout";
+import Settings from "./pages/Settings";
+
+//instead of rendering Layout, we render our router
+	//AND render all our ROUTES, and point them to different components.
+ReactDOM.render(
+	<Router history={ hashHistory } > //all it takes to officially have react-router running.
+		<Route path="/" component={Layout}></Route>
+			<IndexRoute component={Featured} ></IndexRoute>
+			<Route path="archives" component={Archives} ></Route> //will be passed to 1st Route as props.children
+			<Route path="settings" component={Settings} ></Route>
+	</Router>,
+app);
 .
 .
 ----------------------------------------
-
+`Layout.js`
 ----------------------------------------
-
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-
+//instead of <a href="">, we will use Link
+import { Link } from "react-router";
+navigate (){
+	console.log(this.props);//display in console of my props //STUFY THE PROPS TO KNOW WHAT WAS POSSIBLY PASSED BY CLIENT.
+	this.props.history.pushState(null, "/");
+	//this.props.history.replaceState(null, "/"); //Makes person stay and not go back.
+}
+render(){
+	return(
+		<div>
+			<h1>KillerNews.net</h1>
+			{this.props.children}
+			<Link to="archives"><button class="btn btn-success">archives</button></Link>
+			<Link to="settings"><button class="btn btn-success">settings</button></Link>
+			<button onClick={this.navigate.bind(this)} >featured</button>
+		</div>
+	);
+}
+.
+.
+.
 *****************************************
-Video 07: 
+Video 07: React Router Params & Queries
 *****************************************
-
-
+https://youtu.be/ZBxMljq9GSE
 ----------------------------------------
-
+About
 ----------------------------------------
-
-
-	
+Before covering:
+	Complicated Data: Flux, Redux, 
+Will cover:
+	more Routing features
+	handling
+		Routes
+		Route info
+	Getting All HTML into React App.
+.
 ----------------------------------------
-
+Info
 ----------------------------------------
+Specific/Detailed Routing
+	params w/ optional using '()'
+		this.props.params
+		ex: archives/"someArticle/someFilter"
+		can add what is called "params" ex:':article' to end of Route's path prop
+			<Route path="archives(/:article)" name="archives" component{Archives}></Route>
+	location.query
+		this.props.location.query
+Dynamic attributes.
+	I think this is like CSS's active link styling, but/or dynamically adds a class by page/click.
+	*method 1: Link Prop
+		activeClassName="test"
+	method 2: manual JS
+		history.isActive("archives") //maybe only with Links
+			returns boolean
+After Setting up Routes, Links, etc.
+He decided to bring components in.
+What he did...
+	Break down the page into components that are placed into Layout.
+	ex: navigation into Layout as navigation component
 
-
-	
+SUGGESTION
+	Play with React & Routing before moving on...
+	My tidbit: 
+		react-router: https://www.npmjs.com/package/react-router
+.
+.
+.
+----------------------------------------
+`Layout.js`
+----------------------------------------
+<Link activeClassName="classNameForStylePurpose" to="archives" ></Link>
+.
+----------------------------------------
+`Archives.js`
+----------------------------------------
+export default class Archives extends React Component {
+	render(){
+		console.log(this.props);
+		const { query } = this.props.location;
+		const { article } = this.props.params;
+		return (
+			<div>
+				<h1>Archives {article}</h1>
+				<h4>date: {date}, filter: {filter}</h4>
+			</div>
+		);
+	}
+}
+.	
+----------------------------------------
+`client.js`
+----------------------------------------
+<Route path="archives(/:article)" name="archives" component{Archives}></Route>
+.
+.
+.
+.
 *****************************************
-Video 08: 
+Video 08: React Inline Styles & Component Arrays
 *****************************************
+https://youtu.be/XVdwq8W2ZsM
+----------------------------------------
+About
+----------------------------------------
+100% of static HTML is now in React App.
+instead of 30min video of ctrl+C & ctrl+P,
+	walk through the code.
+Will explain react tricks he learned.
+Shows how got rid of 
+	'import Bootstrap from "./vendor/bootstrap-without-jquery"'
+THEN, get into flux in next video.
 
+
+----------------------------------------
+Info / Walk-through
+----------------------------------------
+.....................
+IN `Layout.js`
+.....................
+components imported: 
+	Nav, Footer
+Rendered children in the middle
+	{this.props.children}
+Everything else in Top page components
+	ex:Archives, Featured, Settings
+1 style
+	<div class="container" style{containerStyle} >
+	How?
+		In-line :[
+		const containerStyle = {
+			marginTop: "60px"
+		}
+	IF, too long.
+		break into own styleSheet.
+
+.
+.....................
+IN `Nav.js`
+.....................
+Simply place static HTML.
+	events converted if needed.
+	navbar class name given a variable dynamic name of a ternary const evaluated by this.state.collapsed
+	li class are pathParms for active buttons
+*HOW CAN YOU USE `class` IN JSX AREA?*
+	In React should be using `className`. 
+		remember other video
+	`class` is a JS reserved word.
+	with webpack plugin
+		'react-html-attrs'
+			transpiles class to className
+	This allow strait copy/paste of Bootstrap.
+HOW WAS ABLE TO TOGGLE BUTTON?
+	In constructor, this.state.collapsed=true;
+	button type="button" class="navbar-toggle" onClick={this.toggleCollapse.bind(this)}
+	toggleCollapse(){
+		const collapsed = !this.state.collapsed;
+		this.setState({collapsed});
+	}
+HOW GOT RID OF Bootstrap wo/ JQuery? HOW 100% React?
+	Converted JQuery to JS.
+	says no "Bootstrap on page"...?
+	Basically everything above in this file section.
+.
+.....................
+IN `Featured.js`
+.....................
+Articles are Semi-Dynamic
+	const randomAd = adText[Math.round( Math.random() * (adText.length-1) )]
+	{randomAd}
+	<div class="row">{Articles}</div>
+HOW TO MAKE MANY ARTICLES?
+	//INCORRECT - gives warning, cause wants unique keys of each same component.
+const Articles = [
+	<Article key={1} title{"some title"} />
+	<Article key={2} title{"some title"} />
+	<Article key={3} title{"some title"} />
+];
+	//CORRECT
+const Articles = [
+	"some title1",
+	"some title2",
+	"some title3",
+].map( (title, i) => <Article key={i} title={title} /> );
+	//CHECK HOW MAP & Maps CallBack params works...
+BOOTSTRAP DOES AMAZING JOB WITH SPACING CONTENT.
+.
+.....................
+IN `.js`
+.....................
+
+
+
+.....................
+IN `.js`
+.....................
+
+
+
+.
 
 ----------------------------------------
 
 ----------------------------------------
 
 
-	
-----------------------------------------
 
-----------------------------------------
-
-
-	
 *****************************************
 Video 09: 
 *****************************************
@@ -650,13 +887,13 @@ Video 09:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 10: 
 *****************************************
@@ -667,13 +904,13 @@ Video 10:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 11: 
 *****************************************
@@ -684,13 +921,13 @@ Video 11:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 12: 
 *****************************************
@@ -701,13 +938,13 @@ Video 12:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 13: 
 *****************************************
@@ -718,13 +955,13 @@ Video 13:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 14: 
 *****************************************
@@ -735,13 +972,13 @@ Video 14:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 15: 
 *****************************************
@@ -752,13 +989,13 @@ Video 15:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 16: 
 *****************************************
@@ -769,13 +1006,13 @@ Video 16:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 17: 
 *****************************************
@@ -786,13 +1023,13 @@ Video 17:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 18: 
 *****************************************
@@ -803,13 +1040,13 @@ Video 18:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 19: 
 *****************************************
@@ -837,13 +1074,13 @@ Video 20:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 21: 
 *****************************************
@@ -854,13 +1091,13 @@ Video 21:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 22: 
 *****************************************
@@ -871,45 +1108,368 @@ Video 22:
 ----------------------------------------
 
 
-	
-----------------------------------------
 
 ----------------------------------------
 
+----------------------------------------
 
-	
+
+
 *****************************************
 Video 23: 
 *****************************************
 
 
+----------------------------------------
+
+----------------------------------------
+
+
 
 ----------------------------------------
 
 ----------------------------------------
 
 
+
+
+
+
+
+==========================================
+
+==========================================
+
+
+
+*****************************************
+
+*****************************************
+
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+
+
+==========================================
+
+==========================================
+
+
+
+*****************************************
+
+*****************************************
+
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+
+
+==========================================
+
+==========================================
+
+
+
+*****************************************
+
+*****************************************
+
+
+
+----------------------------------------
+
+----------------------------------------
+
+
+
+
+
+
+
+
+=================================================
+OVERVIEW OF VIDEOS 1-5
+=================================================
+Series: https://www.youtube.com/watch?v=MhkGQAoc7bc&list=PLoYCgNOIyGABj2GQSlDRjgvXtqfDxKm5b
+GitHub: https://github.com/learncodeacademy/react-js-tutorials
+****************
+OV: preReact notes - ES6
+****************
+*see preReact notes
+Functions
+module require/imports
+deconstruction
+function vs block scope
+	var vs let vs const
+.
+.
+.
+****************
+OV: preReact notes - webpack
+****************
+*see preReact notes
+	Browsers don't understand certain JS, but webpack with loaders, plugins, presets, etc. help convert certain JS into understandable Vanilla/Browser JS.
+webpack [entryFile] [outputFile]
+webpack --watch
+	updates outputFile with changes of tracked files.
+webpack-dev-server
+	creates a server in localhost of the webpage
+	--watch conducted to track changes and display them
+BEST to include in npm run script
+	"dev": 
+		"./node_modules/.bin/webpack-dev-server --content-base src --inline --hot",
+.
+.
+.
+****************
+OV: Video 01 - Intro & Workspace
+****************
+-Components are like elements
+-Props are like attributes
+*Rendering Engine is separate from React Syntax
+	ex: <Component prop="value">
+	*import React from "react";
+	*import ReactDOM from "react-dom";
+	-import Layout from "./components/Layout";
+	const app = document.getElementById('app');
+	-*ReactDOM.render(<Layout/>, app);
+Class Files extend React Components{
+	render() {
+		return (
+			<div> //needed for more than one tag containment.
+				//-JSX
+			</div>
+		);
+	}
+}
+.
+.
+.
+****************
+OV: Video 02 - Reactjs Components & Rendering
+****************
+*see OV video 01
+*Components return exactly one DOM element.
+	like HTML, elements have one parent DOM element.	
+*if 1+ component/element, contain all in <div></div>
+Render after component created.
+	const app = document.getElementById("app");
+	ReactDOM.render(<Layout/>, app);
+Where to place logic?
+	within methods of class React Component
+		within render()
+	NO vars in class itself
+.
+****************
+OV: Video 03 - Multiple Components
+****************
+Main points
+	1. import a component, use it as an element.
+		in another component or for rendering
+	2. export default components to be used elsewhere.
+	3. where to place logic
+		a. within methods of class React Component
+			i. within render()
+		b. NO vars in class itself
 	
-----------------------------------------
+entryFile
+	import React from "react";
+	import ReactDOM from "react-dom";
+	*import Layout from "./components/Layout"; //#1a
+	const app = document.getElementById('app');
+	*ReactDOM.render(<Layout/>, app); //#1c
+Layout
+	import React from "react.js"
+	import Footer from "Footer.js";
+	import Header from "Header.js";
+	export default class Layout extends React //#2 Component{ //#3b //constructor, methods//#3a, render(//#3i){//w/ return(<Header /> <Footer />)}} //#1b
 
-----------------------------------------
-
-
+****************
+OV: Video 04 - State & Props and Application Data
+****************
+* How Data is managed in React.
+1st great feature of react.
+	1. VIRTUAL DOM & PURPOSEFUL DOM updates
+.
+2 ways data gets handled +1.
+	1. state
+	2. props
+	3. context - but, this is an advanced feature. Also, API is not stabilized. 
+.
+*Props & States are inherited by React Component
+.
+States
+	*Default state value*
+		this.state = null; //by default.
+	*placed in a class's Constructor*
+		this.state = { //manipulation
+			var1: "string", 
+			var2: "123", 
+			var3: {v:"v1"} 
+		};
+	*This creates a var within state; 
+	*does not override state itself, but does with var*
+		this.state.var = "sup"; //manipulation
+	*'this.setState' can be placed in a method*
+		this.setState({ var: "have 1var instead" }, miliSec);
+	*THIS is how you print the state object*
+		{ JSON.stringify(this.state) }
+	*deconstruction in render's return(//JSX)*
+		{ this.state.var } //access
 	
+	*Manages a VIRTUAL DOM
+		***when state changes on a component, component will re-render.
+		-whenever React renders component tree, it looks for changes in Virtual DOM to actual DOM.
+	*WHY IS IT GREAT!
+		-JavaScript is fast, DOM is slow. 
+		-like Java's StringBuilder, doesn't update until the changes have been made.
+	WHAT IS REACT DOING BEHIND SCENES.
+		*Can see affects by going into chrome's console, clicking `escape` opening `rendering` tab
+			-enable paint flashing
+		-Re-render everything, all the time, on any change, but only in JS, only touch DOM if something changed visually.
+	MENTALLITY of STATE
+		***state only gets used, if component has an internal value that only affects that component.
+		-WHEN to use it?
+			-If you have something that only affects a certain component
+			*Otherwise use props.
+.
+Props
+	this.props.[]
+	:: Props are attributes+values that may/not be passed into React Components when creating an element [in the render's return(//JSX <Component props="value">)], regardless of the React Component's design that may/may not expect its existence of passage.
+		render(){ return( <div> <Component prop={"value"} /> </div> ); }
+	*like XML, can pass any attribute-value pair.
+		The receiving component, may/not use it.
+	*encourages linked/respective Inheritance & Modularity.*
+		<Component prop={this.props.title} /> //!!!
+.
+MIX of states & props
+	*see above state and prop sections
+	<Component prop={ this.state.var }>
+	WHAT HAPPENS?
+		same.
+		Since, DOM doesn't change unless a state changes and that state is respective to one Component, not of many. And core prop may change through continuous passage, but without state, if not used jointly...
+			*Maybe, this allows for DOM update where root prop changes and notified via state location.
+.
+.
+.
+.
+****************
+OV: Video 05 - Events & Data Changes in React
+****************
+Summary: Methods can be passed and used, via binded function props. Can create real-time DOM manipulation by changing STATE -- due to React Render -- with SetSTATE, triggered by an EVENT from INPUT, where JS eventTrigger is placed on the input/etc. with a binded/attached function. 
+
+**NEVER CHANGE props VALUE WTHIN RENDER - won't be able to change it via site**
+
+Passing functions
+	*Can PASS functions VIA PROPS, but make sure to BIND them. 
+		*By binding, you are passing which function to call and where. ex: class A's function 1, not a replica of class A's function 1 within B.
+		*Binding helps to not call in context of where it is being called -- this avoids calling functions that do not exist, where it was passed to.
+.
+(-) means tutorial edits and works.
+(+) means from tutorial, but left there for better picture
+(*) means my edits for better picture
+ex: BELOW CODE IS MORE CORRECT THAN NOTES ON EVENTS ABOVE
+	class A extends React Component{
+		constructor (){
+			super();
+-			this.state = {
+-				title: "Welcome",
+*				varBind: "ChangeMe",
+-			};
+		}
+-		changeTitle(title){
+-			this.setState({ title });
+-		}
+*		handleThisA(e){
+*			const title = e.target.value;
+*			this.changeTitle(title); //this IS REQUIRED
+*		} //MY-WAY to be JS event handled here
+*		handleThatA(e){
+*			const title = e.target.value;
+*			changeTitle(title);
+*		} //MY-WAY to be JS event handled in another component
+		render(){
+			return(
+				<div>
+*					<input onChange={ this.handleThisA.bind(this) } value="defaultValue" />
+*-					<B changeTitle={this.changeTitle.bind(this)} title={this.state.title} handleThatA={this.handleThatA.bind(this)} varBind={this.state.varBind.bind(this)} /> //passing props; changeTitle(title), title, and my handleThatA(e). CANNNOT BIND A VARIABLE
+				</div>
+			);
+		}
+	}//class A
+	class B extends React Component {
+-		handleChange(e){
+-			const title = e.target.value;
+-			this.props.changeTitle(title); //changeTitle contains a setChange and will cause react tree to render.
+-		}
+		render(){
+-+*			this.props.changeTitle("ChangeNow");//passed function executes
++*			this.props.varBind = "GotChanged";
+			return(
+-				<input onChange={this.handleChange.bind(this)} value={this.props.title} /> //INPUT#1 Handled with, in-class method. //imagine passing function to 'input' component, this is reason for binding--i think. //value is defaulted
+*				//WILL THIS WORK AND IS BIND NEEDED? SINCE, handleThatA was binded in class A - YES!
+*				<input onChange={this.props.handleThatA} value={this.props.title} /> //INPUT#2 Handled with, propped method, but binding, not sure of the affects... JUST CAREFUL WITH VALUE, ONLY SET VALUE INPUT IS CHANGING OR NOTHING.
+			);
+		}
+	}//class B
+.
+-------------------------
+Learned-Hypothesised-Tested-Results
+-------------------------
+HYPO
+	I want to test events (in class and through binded function props) -- YES,
+	see if bind is needed for functions that have already been binded before passing via props -- YES,
+	I want to run function props -- YES,
+	Cause I can call a certain component's function and run it in context of which component it belongs to,
+	  Can I alter a component's variable by binding and passing via props and thus editing in context of the components IT belongs to? -NO YOU CANNOT
+BONUS FIND - UNCHANGABLE, RENDER RESET
+//passed function executes fine, but makes input nonEditable
+	// this.props.changeTitle("ChangedNow");
+//CANNOT CHANGE Component's own props values.
+	// this.props.varBind = "GotChanged";
+//HOWEVER, can change object & array contents. -- ES6 basically
+//Note for input value attribute/props
+	//CANNOT CHANGE if given a STRING.
+	//**Must be the value, event is changing or empty.
+	//REASON:
+		//When a change occurs, for example through an event-then-changeState, Render executes and value is reset to value placed there.
+.
+.
+.
+****************
+OV: Video 06
+****************
+
+TBD...
+
+****************
+OV: Video 07
+****************
 
 
-
-==========================================
-
-==========================================
-
+****************
+OV: Video 08
+****************
 
 
-==========================================
+****************
+OV: Video 09
+****************
 
-==========================================
 
-
+****************
+OV: Video 10
+****************
 
 
 

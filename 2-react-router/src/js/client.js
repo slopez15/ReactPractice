@@ -9,10 +9,11 @@ import Settings from "./pages/Settings";
 
 const app = document.getElementById('app');
 
+//Router history is all you need to get react-router going.
 ReactDOM.render(
-  <Router history={hashHistory}> //all you need to get react-router going.
+  <Router history={hashHistory}>
     <Route path="/" component={Layout}>
-      <IndexRoute component={Featured}></IndexRoute> //
+      <IndexRoute component={Featured}></IndexRoute>
       <Route path="archives(/:article)" name="archives" component={Archives}></Route>
       <Route path="settings" name="settings" component={Settings}></Route>
     </Route>
