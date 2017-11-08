@@ -860,86 +860,466 @@ BOOTSTRAP DOES AMAZING JOB WITH SPACING CONTENT.
 .
 .
 *****************************************
-Video 09: 
+Video 09: React Flux Introduction & Flux Stores
 *****************************************
+https://youtu.be/PvjNglsyOHs
+----------------------------------------
+Info
+----------------------------------------
+Flux
+	is not framework
+	is a pattern that FB lay-ed out for building react frameworks.
+React 
+	is just a view layer
+	doesn't provide a way to manage data. 
+	allows prop injection into components
+	doesn't have a 'framework', can provide it one.
+Flux Pattern
+	*see video image.
+	it is a loop
+		Components->Actions->Dispatcher->Stores
+	Where 'Constants' connects Actions and Stores
+.
+Explained...
+React Components 
+	do 2 things
+	1. Fire Actions
+		Actions handles actions
+	2. Listen to Stores
+		when store updates, receives an event & updates
+	- Can query a store 
+Actions
+	Pipe actions to Dispatcher
+Dispatcher
+	Basically a PubSub (pattern of communication)
+		Pubsub every module can subscribe to specific set of event(s) & notify when event takes place.
+	Except that it, dispatcher takes every event and sends to every subscriber.
+Store
+	stores gets every event from dispatcher
+	only reacts to events it cares about.
+.
+Why is this good? - seems redundant...
+	-gives everybody the chance to, change/re-render when anything changes
+	-Virtual DOM always changes, but DOM ONLY changes when it visually changes.
+	DOM is slower than VDOM.
+----------------------------------------
+Summmary:
+----------------------------------------
+Dom is slowest part of JS app.
+Components fire actions.
+Actions only aware of Dispatcher.
+Dispatcher aware of everyone who needs to hear about actions (given all actions).
+Stores decides to ignore actions or update themselves. Also, fire update events showing TODO list changed, and then...
+Component listening to certain stores updated themselves and re-render app. 
+Constants -- used by some frameworks -- a way of storing action names. 
+.
+.
+.
+*****************************************
+Video 10: Flux Store Events
+*****************************************
+https://youtu.be/bvEC6i7CUyE
+----------------------------------------
+About
+----------------------------------------
+"Sorry babe I wasn't listening, I was too busy...
+fixing my flux dispatcher, 
+you see it wasn't emitting the constants to the storage properly.
+"
+^Many new words to JS...confusing...
+Just learn the meaning.
 
+Flux/etc Easy after understand word meaning.
+Hard to understand when people forget how hard it is when never having heard words before and they trying communicating it to you.
+
+*Build Dispatcher next video
+
+Where are we so far, 
+	we have our component pulling data from Store--not so dynamic.
+
+We need better, 
+	dynamic aspect by, 
+	when store changes, it emits a change method and Component can stay updated as Store changes. 
 
 ----------------------------------------
-
+files Abridged
 ----------------------------------------
 
+.....................
+	IN `Component.js`
+.....................
+import Store from "Store.js"; //Data location
+export default class ComponentName extends React.Component {
+	constructor(){
+		this.state = {
+			data: Store.getAll(), //safe way to get data
+		};
+	}
+	//*see note**
+	componentWillMount(){
+		Store.on("change", () => {
+			this.setState({ data: Store.getAll() });
+		});
+	}
+}
 
+.....................
+	Note
+.....................
+Store must react when receives an event to change.
+	store.on("change", someHandler);
+EventEmitter comes with nodeJS.
 
+componentWillMount()
+	//Is part of React.Component
+	//whenever a component will render for 1st time, will fire componentWillMount function.
+	//this is great place to add event listeners, because only need to do it when it gets rendered, and only need to do it once. 
+
+Whenever Store changes, 
+	update Component's state *see componentWillMount
+Can test by, 
+	expose Store globally
+.....................
+	console / file
+.....................
+*window.store = Store; //store
+
+//console
+store.createStore("test store");
+.
+.
+.
+.....................
+	IN `Store.js`
+.....................
+import { EventEmitter } from "events"; //*see note
+class Store extends EventEmitter {
+	constructor (){
+		this.state = {
+			store: [ 
+				{}, 
+				{id: 123, text: "Go Shop", complete: false}, 
+			],
+		};
+	}
+	getAll(){return this.state;}
+	createData(){
+		const id = Date.now();
+		this.state.push({id, text, complete: false,});
+
+		//emitt a change event
+		this.emit("change");
+	}
+}
+const store = new Store;
+export default store;
+.
+.
+.
 ----------------------------------------
-
+	Files 'Long' Version
 ----------------------------------------
+.....................
+	IN `Component.js`
+.....................
+import Store from "Store.js"; //Data location
+export default class ComponentName extends React.Component {
+	constructor(){
+		super();
+		this.state = {
+			data: Store.getAll(), //safe way to get data
+		};
+	}
+	//*see note**
+	componentWillMount(){
+		Store.on("change", () => {
+			this.setState({
+				data: Store.getAll(),
+			});
+		});
+	}
+	render (){
+		//renderVars&JSX
+		return (
+		);
+	}
+}
 
+.....................
+	Note
+.....................
+Store must react when receives an event to change.
+	store.on("change", someHandler);
+EventEmitter comes with nodeJS.
+
+componentWillMount()
+	//Is part of React.Component
+	//whenever a component will render for 1st time, will fire componentWillMount function.
+	//this is great place to add event listeners, because only need to do it when it gets rendered, and only need to do it once. 
+
+Whenever Store changes, 
+	update Component's state *see componentWillMount
+Can test by, 
+	expose Store globally
+.....................
+	console / file
+.....................
+*window.store = Store; //store
+
+//console
+store.createStore("test store");
+
+.....................
+	IN `Store.js`
+.....................
+import { EventEmitter } from "events"; //*see note
+class Store extends EventEmitter {
+	constructor (){
+		super();
+		this.state = {
+			store: [
+				{
+					id: 123,
+					text: "Go Shop",
+					complete: false
+				}, 
+				{
+					id: 321,
+					text: "Pay Bills",
+					complete: false
+				},
+			],
+		};
+	}
+	getAll(){ //safely obtain data
+		return this.state;
+	}
+	createData(){
+		const id = Date.now(); //just a hacked together unique-ish ID
+		this.state.push({
+			id,
+			text,
+			complete: false,
+		});
+		//emitt a change event
+		this.emit("change"); //onChange, someone else can get that event.
+	}
+}
+const store = new Store;
+export default store;
 
 
 *****************************************
-Video 10: 
+Video 11: The Flux Dispatcher
 *****************************************
+https://youtu.be/MZfCVq5iCBw
+----------------------------------------
+About
+----------------------------------------
+Where are we so far, 
+	component pulling initial data from Store.
+	listening to Store and updating when it changes.
+We need, 
+	add Dispatcher
+	register out store to dispatcher
+	so, any actions that go through pipeline, store is notified. 
+*Actions - Next video
+**
+**
+`npm install -S flux`
+
+
 
 
 ----------------------------------------
+	IN `Dispatcher.js`
+----------------------------------------
+import { Dispatcher } from "flux";
+export default new Dispatcher;
 
 ----------------------------------------
+	Edit `Store.js`
+		is in Store folder
+----------------------------------------
+	import dispatcher from "../Dispatcher"
+	//before export default & after object
+	
+	//**
+	dispatcher.register(Store.handleActions.bind(Store));//to test
 
-
+	//handles dispatcher.dispatch({type: "CREATE_TODO", text: "new store" });
+	handleActions(action){
+		//console.log("Store received an action--anything dispatcher.dispatch-ed", action);
+		switch(action.type){
+			case "CREATE_TODO": {
+				this.createStore(action.text);
+			}
+		}
+	}
+.
 
 ----------------------------------------
-
+	Note
 ----------------------------------------
-
-
-
+dispatcher
+	Only 2 methods you use
+	1. dispatcher.register
+		to register new listener, which is our Store
+	2. dispatcher.dispatch
+		what all actions will use to dispatch
+		//*see Store
+To test
+`window.dispatcher = dispatcher;`
+//console
+dispatcher.dispatch({type: "Some Event"});
+.
+NOTICE:
+	handleActions is given all actions.
+	So need to get only the one we care about...
+.
+.
+.
+.
 *****************************************
-Video 11: 
+Video 12: Flux Actions
 *****************************************
-
-
+https://youtu.be/0yW7C22ooos
 ----------------------------------------
-
+About
 ----------------------------------------
-
-
-
+We got
+	Dispatcher dispatching actions to those listening aka Store
+	Store updates itself and dispatches a change event.
+	Component can listen to, if want to.
+Seems like lots of steps...
+	As app grows, varying actions, 
+	Stores only listen to Actions care about
+	Components only listen to Stores care about
+		and fire handful of Actions
+	-this is a highly-decoupled framework
+Doing now
+	Action part of Flux
+Next time
+	Async Actions!
+		ex: load from backEnd API, then show data.
+		*This was my first Question!
 ----------------------------------------
-
+	file `ComponentActions.js` 
+		is in Actions folder
 ----------------------------------------
+//all we have to do is dispatch actions
+import dispatcher from "./dispatcher";
 
+//ES6 way
+export function createComponent(text){
+	dispatcher.dispatch({
+		type: "CREATE_TODO", 
+		text,
+	});
+}
+export function deleteComponent(id){
+	dispatcher.dispatch({
+		type: "DELETE_TODO", 
+		id,
+	});
+}
+//
+//
+//
+//in JS would need to export function within object
+export default {
+	createComponent: function (){
+		
+	}
+}
+.
+----------------------------------------
+	In `Component.js`
+----------------------------------------
+import * as ComponentActions from "./Actions/ComponentAction";
 
+createComponent(){
+	ComponentActions.createComponent(Date.now());
+}
 
+//inside the Component's render return
+<button onClick={this.createComponent.bind(this)}>Create!</button>
+//
+//
+//
+//Can make the button into input. //below input isn't finished.
+<input onClick={this.createComponent.bind(this)}></input>
+.
+.
+.
 *****************************************
-Video 12: 
+Video 13: Asynchronous & AJAX Flux Actions
 *****************************************
+https://youtu.be/CuYd9uDB0vg
+----------------------------------------
+About
+----------------------------------------
+1st question for people learning flux:
+	w/ actions, seems great for synchronous actions, but what about Asynch actions?
+		ex: load data from another page, and then an action when loading is done to display data.
+
+----------------------------------------
+	File `Component.js`
+
+----------------------------------------
+//ignore state code below
+this.state = {
+	data: Store.getAll(),
+};
+
+//do something when an action comes in.--only have this videos case here.
+handleActions(action){
+	switch(action.type){
+		case "GOT_DATA": {
+			//this.recieveComponent(data);
+			this.data = action.data;
+			this.emit("change");
+		}
+	}
+}
+
+//change createComponent to ReloadComponent
+reloadComponent(){
+	ComponentActions.reloadComponent();
+}
+//in button JSX
+<button onClick={this.reloadComponent.bind(this)}>Reload!</button>
+----------------------------------------
+	File `ComponentActions.js`
+		**Promise/Async
+----------------------------------------
+//We want app notified when data is passed. How do we do this?
+export function reloadComponent (){
+	URL = "http://url.com/data";
+	axios(URL).then( (data) => {
+		console.log("Got data!", data);
+	});
+
+	//can fake this but setting a timeout();
+
+	//dispatch multiple events
+	dispatcher.dispatch({type: "FETCH_DATA",});
+	setTimeout( () => {
+		dispatcher.dispatch({type: "GOT_DATA", data: [
+			{},
+			{data: "some data", moreData: "some more data"},
+		]});
+		
+		//let say some prob occurred
+//		if (false){
+//			dispatcher.dispatch({type: "FETCH_DATA_ERROR", text: error});
+//		}
+	}, 1000);
+}
 
 
 ----------------------------------------
-
-----------------------------------------
-
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-
-*****************************************
-Video 13: 
-*****************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-
-----------------------------------------
-
+Summary! - needed, kinda confusing...
 ----------------------------------------
 
 
@@ -962,27 +1342,281 @@ Video 14:
 
 
 *****************************************
-Video 15: 
+Video 15: How Redux Works - Redux Tutorial #1
 *****************************************
+https://youtu.be/1w-oQ-i1XB8
+----------------------------------------
+About
+----------------------------------------
+Redux
+	changes Flux Pattern
+	ways to avoid complex flux bugs
+.
+When to use [what]...
+React
+	Building Component
+	state in layout level component
+		he's refering to his Layout Component, simple.
+Flux
+	App type
+	stable in many ways.
+Redux
+	data complex scenarios/chain of events.
+	takes longer than flux & frustrating.
+
+NOW, Let look at DESIGNS
+Flux
+	it is a loop
+		Components->Actions->Dispatcher->Stores
+	Where 'Constants' connects Actions and Stores
+Redux
+	it is a loop
+	[(Smart components)--"pass data as props"-->(Dumb component)]->Actions->[Reducer-notDispatcher]->[OneStore-notStores]->ProviderComponent--"Re-Render when store changes"
+Actions
+	Acts most like Flux
+	triggered by components
+	dispatch actions
+	actions dispatch actions
+	async action
+		may dispatch FETCH_DATA, 
+		RECIEVE_DATA when data comes in,
+		FETCH_DATA_ERROR when error, 
+Reducer/notDispatcher
+	*multiple reducers mod immutably, concurrently(no racing conditions) on zero-dependent pieces of data
+	instead of multiple stores that manage own data
+	multiple reducers that all mod a "piece of data" from OneStore.
+	mod immutable way.
+	flux to redux thought
+		instead of 3 stores, you got 3 reducers
+		ex: data, settings, favorites
+	all reducers can react to same Action
+		all act at once 
+		zero-dependency
+OneStore
+	1 BIG immutable store
+		prior app - data, settings, favorites.
+		now - dataList, settingList, favoritesList
+	don't mutate, new versions of Store aka immutable.
+		this way we have a full history.
+ProviderComponent
+	to wrap react app/components 
+	listens to store.
+Components
+	[(Smart components)--"pass data as props"-->(Dumb component)]
+	Smart
+		Page level
+		aware of framework
+			know how to pull data from OneStore
+		injects data into child properties
+	Dumb
+		//data manipulation level
+		asks for data and splats data
+.
+Best Part of Redux
+	OneStore version-ing
+	Rollback capable
+	Debug friendly
+.
+.
+.
+*****************************************
+Video 16: Immutable JS - Redux Tutorial #2
+*****************************************
+https://youtu.be/9M-r8p9ey8U
+----------------------------------------
+About
+----------------------------------------
+immutability & mutation are topics of JS
+*POS: Even of a programming doesn't have a feature, can write a way to provide that feature. 
+immutable :: Don't change data, only create new data based on its values.
+----------------------------------------
+Info
+----------------------------------------
+immutable :: Don't change data, only create new data based on its values.
+Why immutability not built into JS?
+	2 types in JS
+	1. primitive - they are their own -- immutable-ish
+		numbers
+		strings
+		boolean
+		?
+			null
+			undefined
+		?
+			objects
+			array
+		New in ES6
+			Symbol
+	2. reference - they are shared -- mutable
+		object
+		array
+		functions 
+ex:
+//immutable
+var a = 1; var b = a; b = 3; //a is the same
+//mutable
+var a = {num: 1}; var b = a; b.num = 2; //a is changed
+//How to create immutable reference?
+	Object.assign $.extend _.extend _.assign
+ex:
+//objects
+	var a = {num: 1, val: 1}; var b = Object.assign({}, num, val, {etc: "something"}); b.num = 2; //a is same
+//arrays
+	//adding statically
+	var a = [0, 1, 2]; var b = a.concat(3); //a is the same
+	//removing statically
+	var a = [0, 1, 2]; var b = a.filter((val)=>val!=2); //a is the same. filter out 2.
+//mix?
+var a = {num: 1, arr:[0, 1, 2]}; var b = Object.assign({}, num, a.arr.filter(2)); //a is same. created new obj and filtered out 2.
+//others
+	//map to change elems in array.
+arr.map( ()=>{})
+	//reduce reduces array to a single value with a function
+		//requires total & currentValue
+	//total is... initialVal or previous returned val
+	//currentValue is... current elem
+	//index is... index
+	//arr is... arr
+arr.reduce((total,currentValue, index,arr)=>{});
+ex: arr.reduce((total,val)=>total+val); //total+=num;
+----------------------------------------
+Summary
+----------------------------------------
+always brings in new array/object.
+	Object.assign({}, vars, to, pull);
+	arr.concat(concatIn);
+	arr.filter(filterOut);
+	arr.map( (elem, i)=>{});
+	arr.reduce((total,currentValue, index,arr)=>{});
+.
+*****************************************
+Video 17: Basic Redux Introduction - Redux Tutorial #3
+*****************************************
+https://youtu.be/ucd5x3Ka3gw
+----------------------------------------
+About
+----------------------------------------
+Redux is SIMPLE, 
+	BUT, when seeing a full example,
+	it is hard to tell what is AcTuAlly making it work...
+What we are doing?
+	simple examples.
+	then add the pieces.
+	*See his source code repo.
+`npm install redux`
+Next time!
+	separate following in to own files:
+		REDUCER acts on STORE's DISPATCH and returns a state for SUBSCRIBED clients of certain store. 
+----------------------------------------
+Info -- redux
+----------------------------------------
+Not using react-basic files at all.
+Will only use chrome developer tools to console.log().
+Redux
+	*is not a part/plugin of react.
+	-own way of managing app state.
+	-has its own style of flux framework.
+	-can be used on any app 
+	*just happens to work awesome with react.
+		because, react is very functional
+		*We will see why.
+.
+----------------------------------------
+	file `client.js`
+----------------------------------------
+//to create redux Store, need 1 thing--a REDUCER.
+import { createStore } from redux;
+let initialState = 0; //{all vals of app state}
+const reducer = function(state, action){
+	if(action.type === "INC"){
+		return state+1;
+	}
+	if(action.type === "DEC"){
+		return state-1;
+	}
+	return state;
+}
+const store = createStore (reducer, initialState);
+
+
+//listen to the store.
+store.subscribe( ()=> {
+	console.log("store changed", store.getState() );
+});
+//changes states based on actions
+store.dispatch({ type:"INCREMENTS", payload: 1 });
+store.dispatch({ type:"INCREMENTS", payload: 1 });
+store.dispatch({ type:"INCREMENTS", payload: 1 });
+store.dispatch({ type:"INCREMENTS", payload: 1 });
+store.dispatch({ type:"DECREMENTS", payload: 1 });
+	//REQUIRES object w/ type property
+
 
 
 ----------------------------------------
-
+	Info - code `client.js`
 ----------------------------------------
-
-
-
+//import one thing -- *createStore
+	//to start a redux Store -- reducer function
+	//*STORE needs (REDUCER, INITIAL STATE)
+//listen to store and subscribe (print)
+	//no console log..cause,
+//dispatch events to store
+	//can see store changed, but no state/nothing happened. 
+	//cause, went through reducer()
+		//was undefined
+		//gets (state, action)
+		//*return of reducer is new state of store
+import { createStore } from redux;
+store
+	must be imported
+	needs (reducer, initialState)
+reducer
+	gets to change states based on actions
+	returns the new state
+	needs (state{}/val, action{})
+	maybe best place to put switch statement
+dispatcher
+	store.subscribe( ()=> {
+		console.log("store changed", store.getState());
+	});
+//changes states based on actions
+store.dispatch({ type:"INCREMENTS", payload: 1 });
+Summary:
+	store is the center. event is dispatched, reducer decides what/how to mod data and returns it, so client handles the output of subscribed store(can use store.getState() to do a certain action).
+Presenter Summary:
+	create a reducer, store, then whenever dispatch events...reducer(s), act upon store and client acts based on store's state.
+.
+.
+.
 ----------------------------------------
-
+Summary
 ----------------------------------------
+What you need to use Redux
+0. `npm install -S redux`
+1. import createStore
+2. 
+3. 
+4. 
+5. 
+6. 
 
-
+Store is the center. Event is dispatched, reducer decides what/how to mod data and returns it, so client handles the output of subscribed store(can use store.getState() to do a certain action).
 
 *****************************************
-Video 16: 
+Video 18: Multiple Reducers - Redux/React Tutorial #4
 *****************************************
-
-
+https://youtu.be/gBER4Or86hE
+----------------------------------------
+About
+----------------------------------------
+We got, 
+	BASIC REDUX app
+	reducer, store w/ 1 val, 
+	store.dispatch's and final subscribed component action.
+Will do
+	multiple reducers in own files
+.
 ----------------------------------------
 
 ----------------------------------------
@@ -994,62 +1628,819 @@ Video 16:
 ----------------------------------------
 
 
+
+----------------------------------------
+	file `client.js` EDIT
+----------------------------------------
+import {combineReducers, createStore} from redux;
+//pretend reducers in own file.
+const userReducer = (state={default:val}, actions) => {
+	//const newState = {...state};
+	switch(action.type){
+		case "CHANGE_NAME": {
+			//state.name = action.payload;
+			state = {...state, name: action.payload}//...state must be before or changes will be overridden
+			break;
+		}
+		case "CHANGE_AGE": {
+			state.age = action.payload;
+			break;
+		}
+	}
+	return state;
+	//return newState; //MUST BE A NEW STATE!
+};
+const tweetsReducer = (state={}, actions) => {
+
+};
+//passing object; what piece of data to which reducer will handle that data.
+const reducer = combineReducers({
+	user: userReducer
+});
+//**changed store reducer to combineReducers
+const store = createStore(reducers, {
+	user:{state: "dataHere"}, 
+	tweets: [],
+});
+//pretend store subscription this line
+
+//dispatches
+store.dispatch({type: "CHANGE_NAME", payload: "Will"});
+store.dispatch({type: "CHANGE_AGE", payload: 35});
+
+----------------------------------------
+About combineReducers line
+----------------------------------------
+When userReducer fires, 
+	its state will be the Store's `user` prop/object
+	the return value will be set for that same data fragment
+Can place default values in respective reducers' params
+DEFAULT values are crucial if want program not to crash/ERROR due to reducers' returning NOTHING.
+.
+EACH REDUCER MUST NOT MOD STATE - MUST BE immutable.
+2 solutions
+	1. new state
+	2. mod w/ immutabile fashion. 
+		Do this at same location of modding.
+		NOTICE: ...state must be before, not after--or will revert to same state.
+.
+reducers 
+	not aware of data fragment.
+	multiple reducers can be triggered by one event
+----------------------------------------
+Summary:
+----------------------------------------
+
+
+.
+.
+.
 
 *****************************************
-Video 17: 
+Video 19: Redux Middleware - Redux Tutorial #5
 *****************************************
-
-
+https://youtu.be/DJ8fR0mZM44
 ----------------------------------------
-
+About
 ----------------------------------------
-
-
-
+Redux middle ware.
+	One last thing to cover before React/Redux app.
+	is like Express.js
+	intercepts all actions
+		can mod/cancel action
+Will do now,
+	Basic Middleware
+Did now.
+	rollback code to BASIC REDUX
+Next Time,
+	how middleware is solution to ASYNC actions.
+		like ajax
+		XHR requests
+.
 ----------------------------------------
-
+	code - `client.js`
 ----------------------------------------
+import { applyMiddleware, createStore } from "redux";
 
+const reducer = ( (initialState=0, action) => {
+	//*edited
+	else if(action.type === "E"){
+		throw new Error("Gulp...!!");
+	}
+});
 
+	//(probably won't need making middleware)
+	//syntax for middleware uses `curry` format. 
+	//most middleware can pull in as NPM package and use it by placing as params to applyMiddleware().
+	//?chain of thumps/thunks? aka `curried` functions
+	//**if not pass actions to next middleware, actions implements will terminate. I think subscription counts as middleware.
+	//params. store, next-, action.
+const logger = (store) => (next) => (action) => {
+	console.log("action fired", action);
+	//action.type = "DEC"; //will cause decrement even if fired INC
+	next(action); //**REQUIRED!, passes to mw,reducers &subscription
+}
+//2nd middleware
+const error = (store) => (next) => (action) => {
+	try {
+		next(action);
+	}
+	catch(e){
+		console.log("OHH NOOO!", e);
+	}
+}
 
-*****************************************
-Video 18: 
-*****************************************
+	//params-middleware want to add
+const middleware = applyMiddleware(logger, error);
 
+	//removed store subscription line. createStore 3rd-arg added--daMiddleware
+	//to check if actually firing, but not called since middleware terminates wo/ passing actions to subscription
+store.subscribe(()=>{
+	console.log("store changed", store.getState());
+});
 
+	//3rd-arg--?do?
+const store = createStore(reducer, 1, middleware);
+
+store.dispatch({type: "INC"});
+store.dispatch({type: "INC"});
+store.dispatch({type: "DEC"});
+store.dispatch({type: "DEC"});
+store.dispatch({type: "INC"});
+store.dispatch({type: "E"});
+.
 ----------------------------------------
-
+	Info on Code 
 ----------------------------------------
-
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-
-*****************************************
-Video 19: 
-*****************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
+notice subscription was removed.
+middleware
+	setup
+		is sometimes taken from NPM and just thrown into applyMiddleware() param..
+		creating a middleware, curried functions (may/not be required)
+		*place middleware into applyMiddleware() to make it an official middleware.
+		createStore() 3rd-param is the applied Middleware.
+	explained
+		after dispatch/action fired,
+			1st. middleware handles,
+				middleware order matters. applyMiddleware 
+				MUST PASS actions to others in series
+					unless want to stop process.
+					via next(action);
+			2nd. reducers
+			3rd. subscription
+Examples for explanation purposes
+ex: 1
+	in logger middleware, 
+		action.type = "DEC"
+		overridden the action it would take by overwriting action.type, probably for each action that passed through.
+	proves that middleware is between action dispatch and reducer
+ex: 2
+	in error middleware
+		tried catching an error, which it can't unless one is throw.
+		error is thrown in reducer, after middleware
+		caught error
+		console logged, reducer switch case, before middleware
+		through out logs, 
+			middleware was first and lastly subscribtion
+			but in error, order was reducer, middleware, and subscription didn't occur.
+			logger 1st, error 2nd.
+	proves reducer may be first, middleware 2nd, but theory is best
 	
+**Best theory: error is considered an action and went through sequence again(middleware 1st). When, error passed to middleware, err log occurred instead of passing to subscription. Also, middleware order matters.
+.
+.
+----------------------------------------
+	Summary - Code
+----------------------------------------
+subscribe vs middleware timing
+	?not sure?
+subscribe
+	does something for file subscribe to store, not/using newState provided by reducer via getState().
+middleware
+	*see code notes
+
+To remember: 
+	Store is the center. Event is dispatched, reducer decides what/how to mod data and returns it, so client handles the output of subscribed store(can use store.getState() to do a certain action).
+.
+.
+.
+----------------------------------------
+----------------------------------------
+SPIKE to JS videos....
+	see `curry` functions
+----------------------------------------
 ----------------------------------------
 
+..................................
+	Practice JS - Curry + more
+..................................
+https://www.youtube.com/watch?v=1DMolJ2FrNY&index=4&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84
+------------------------------------
+	sub-about
+------------------------------------
+In Immutable section we covered
+	map, reduce, + others
+We know, 
+	recursion, promise, 
+Will cover, 
+	HOF - higher order functions
+	reduce
+	moar reduce
+	closures
+	currying
+------------------------------------
+	higher-order functions
+------------------------------------
+why, what how.
+Why
+	fun, better programmer, 
+	less bugs-easy to reason
+	less time-reuse more
+	HOF-functions are values
+		ex: var f = function(){}
+	good for: composition.
+		can decouple callbacks as own functions for 
+			chaining methods like 
+				filter, reject, find, map
 ----------------------------------------
+	reduce
+----------------------------------------
+We know numbers only,
+	but says can reduce into other value types
+Presenter thoughts
+	holy shit moment
+	thought was for DB, noSQL DB...
+	can use this everywhere, 
+		even when you shouldn't
+There are many array transformations!
+What to do if not find one that fits?
+	use REDUCE!
+		can act as pre-built list transformer
+.
+This video was just EXTREMELY basic examples and doesn't showcase the POWER of reduce.
+............
+	code
+............
+var orders = [{amount: 250}, {amount: 400}, {amount: 100}, {amount: 325}];
+var totalAmount = orders.reduce( (sum, order)=> sum + order.amount, 0);
 
+----------------------------------------
+	moar/more - reduce
+----------------------------------------
+About
+	power of reduce
+	how complies other list transformations
+	can create complex objects
+.
+............
+	code
+............
+reduce((accumulator, elems) => {	
+}, {});
+reduce((customers, customerInfo) => {	
+	customers[customerInfo[0]] = customers[customerInfo[0]] || []; //without the OR arry in arr trick, would overwrite content and erase previous data.
+	customers[customerInfo[0]].push({
+		name:line[1], 
+		price: line[2], 
+		quantity: line[3],
+	});	
+	return customers;
+}, {});
+----------------------------------------
+	closures
+----------------------------------------
+In JS, functions are functions and closures
+closures
+	function party has access to variables defined outside.
+		This sounds like block vs function scope, particularly var.
+In my exp
+	start with minimal scope & variability, before opening up--is a good rule of thumb.
+		const -> let -> var
+Use cases to use closures aka function scope vars
+	there is a few
+	1. see sendRequest example
+		request has access to certain data, even though is executed way later.
+Info
+	mozilla has great info about closures
+	https://www.youtube.com/redirect?v=CQqwU2Ixu-U&event=video_description&q=https%3A%2F%2Fdeveloper.mozilla.org%2Fen-US%2Fdocs%2FWeb%2FJavaScript%2FClosures&redir_token=22vCeeAhZTcwwwWaxcWYr4Z4OkZ8MTUwNzA5Mjk3NUAxNTA3MDA2NTc1
+About Code
+	function really has access outside, doesn't snapshot variables.
+............
+	code
+............
+var me = 'Bruce Wayne';
+function greetMe(){
+	console.log('Hello', + me + '!');
+}
+me = 'Batman'; //line to prove snapshot idea
+greetMe();
+............
+	sendRequest - closure example
+............
+	function sendRequest(){
+		var requestID = '123';
+		$ajax({
+			url: '/myUrl',
+			success: function(response){
+				alert('Request ' + requestID + 'returned')
+			}
+		});
+	}
 
+----------------------------------------
+	Currying - "Chain of thumps--redux vid".
+----------------------------------------
+Currying
+	when a function not take all params upfront.
+	provide arg for function, to return nth-arg for nth+function, where last function returns value wanted. currying of functions occur until, have all args needed.
+		provide 1st-arg for function, to return a 2nd function w/ 2nd-arg, to return a function
+			*due this until all args provided
+			*last function, returns value wanted.
+initial thoughts
+	seems pointless
+		more code
+		does same
+	but, is there some kind of async feature?
+.
+code info
+	the idea of curry is...
+		ur function can pass through app and gradually receive params
+code summary
+	gradual addition of elements, 
+		requires to have inserted previous param, before calling shortened method for next param -- and so on...
+............
+	code
+............
+	//**regular
+let dragon = (name, size, element) =>
+	name + 'is a ' +
+	size + 'dragon the breathes' +
+	element + '!';
+console.log(dragon('fluffykins', 'tiny', 'lightning'));
+	//**curry format
+let dragon = 
+	name =>
+		size=>
+			element=>
+				name + 'is a ' +
+				size + 'dragon the breathes' +
+				element + '!';
+	//**whole print
+console.log(dragon('fluffykins')('tiny')('lightning'));
+	//**gradual data pickup.
+let fluffykinsDragon = dragon('fluffykins');
+let tinyDragon = fluffykins('tiny');
+console.log(tinyDragon('lightning'));
+
+	//**make non curry-able functions, curry-able
+	//LODASH USED `npm install lodash`
+import _ from "lodash";
+let dragon = (name, size, element) =>
+	name + 'is a ' +
+	size + 'dragon the breathes' +
+	element + '!';
+
+	//note: not need lodash or libs as/for curry
+dragon = _curry(dragon);
+let fluffykinsDragon = dragon('fluffykins');
+let tinyDragon = fluffykins('tiny');
+console.log(tinyDragon('lightning'));
+
+	//**example COMPLEX
+let dragons = [
+	{name: 'fluffykins', element: 'lightning'},
+	{name: 'noomi', 	 element: 'lightning'},
+	{name: 'karo', 		 element: 'fire'},
+	{name: 'doomer', 	 element: 'timewarp'},
+];
+	//before
+let hasElement =
+	(element,obj)=>obj.element === element;
+let lightningDragons = 
+	dragon.filter(x => hasElement('lightning',x));
+	//after - adding curry, removing wraping function.
+let hasElement =
+	_.curry( (element,obj)=>obj.element === element);
+let lightningDragons = 
+	dragon.filter(hasElement('lightning'));
+console.log(lightningDragons);
+.
+Example summary
+	**look at lightningDragons then hasElement
+		curried in element first, then boolean of obj
+.
+----------------------------------------
+	Recursions
+----------------------------------------
+Self Notes: 
+	recursions should be simple, but think not cause, learned with BAD examples aka Fibonacci.
+.
+Recursion
+	::calls itself, until it doesn't
+	vs 
+		while - don't know ending, but know when to stop.
+		for - increment to a stopping point
+		for, while, & recursion do the same, just diff context.
+.
+code
+	//in words: take a number, say it, then take that number-1, say that, and follow that same rule. add stop condition.
+Info
+	covered what and how.
+	why use it?
+		*things recursion can do, that loops cannot
+			*loops can get only if limited nesting...
+				//I'm sure can get unknowing number of nesting - aka infinite.
+				//something like:
+					//STOP outside
+					for(initial = input; stop; ){//stopMod//INCREMENT_RULE aka last state}
+				//probably makes for loops look like recursion
+.
+............
+	code - simple and mustUse
+............
+	//simple
+let countDownFrom = (num) => {
+	if(num === 0) return;
+	console.log(num);
+	countDownFrom(num-1);
+}
+countDownFrom(10);
+	//mustUse - example where needed recursion
+let categories = [
+	{ id: 'animals', parent: null }, 
+	{ id: 'mammals', parent: 'animals' }, 
+	{ id: 'cats', parent': 'mammals' }, 
+	{ id: 'dogs', parent': 'mammals' }, 
+	{ id: 'chihuaha', parent': 'dogs' }, 
+	{ id: 'labrador', parent': 'dogs' }, 
+	{ id: 'persian', parent': 'cats' }, 
+	{ id: 'siamese', parent': 'cats' }, 
+];
+//the idea is that the above is a tree. animals[[cats][dogs]]
+//we know parent:null is unique and is root. Also, makes since root node will change last. Start at root, then go down.
+
+function makeTree(categories, parent){ //INITIAL
+	let node = {}; //STOP! //if nothing below, this is default.
+	categories
+		.filter((category) => 
+			category.parent === parent)
+		.forEach(category => 
+			node[category.id] = makeTree(category, category.id)); //INCREMENT_RULE
 	
+	return makeTree(categories);
+}
+console.log(
+	JSON.stringify(
+		makeTree(categories, null)
+		, null, 2)
+	);
+);
+
+............
+	code - recursion, for, while
+............
+	//**AS STOP - countTo**
+		//recursion
+var initial = 0; //INITIAL
+function countTo(stop){ 
+	if (initial > 10) { //STOP!
+		return;
+	}
+	console.log(initial);
+	return countTo(initial +1); //INCREMENT_RULE
+}
+		//for
+var stop = prompt();
+//INITIAL//STOP!//INCREMENT_RULE
+for (int initial = 0; initial < stop; initial++){ 
+	console.log(initial);
+}
+		//while
+var stop = prompt();
+var initial = 0;
+while (initial < stop) {
+	console.log(initial);
+	initial++;
+}
+.
+.
+	//**AS INITIAL - countFrom**
+		//recursion
+function countFrom(initial){ //INITIAL
+	if (!(initial<10 && initial>=0)){ //STOP!
+		return; //initial ![0,10]
+	}
+	console.log(initial);
+	return countFrom(initial+1); //INCREMENT_RULE
+}
+		//for
+var _initial = prompt(); //INITIAL
+//STOP! //INCREMENT_RULE
+for (int initial = _initial; (initial<10&&initial>=0); initial++){
+	console.log(initial);
+}
+		//while
+initial = 0; //INITIAL
+while (initial<10&&initial>=0) { //STOP!
+	console.log(initial);
+	initial++; //INCREMENT_RULE
+}
+
+
+SUMMARY - Recursion, For, while
+I think a good tip is, 
+	*initial is defined outside or passed as param!
+	if we define initial, 
+		code is inside
+	if we DONT define initial, 
+		it's defined outside.
+.
+.
+.
+**Add vids for JS above
+.
+.
+.
+----------------------------------------
+----------------------------------------
+jump back to video notes....
+----------------------------------------
+----------------------------------------
+.
+.
+.
 *****************************************
-Video 20: 
+Video 20: Redux Async Actions - Redux Tutorial #6
 *****************************************
+https://youtu.be/Td-2D-_7Y2E
+----------------------------------------
+**About
+----------------------------------------
+Redux makes handling async actions easy!
+	redux w/ react!
+	*React is ONLY VIEW representation of the state of the store
+		as store changes, view changes
+	*never use state again, use props from store.
+.
+Next video
+	Tie REDUX together with REACT
+		async, etc.
+.
+----------------------------------------
+	*Info-Code
+----------------------------------------
+in comments, said redux logger has changed!
+	use this perhaps (check package)
+	import { createLogger } from "redux-logger"; 
+	const middleware = applyMiddleware(createLogger());
+.
+My suggestions
+	try gathering reducers
+	can make a generic reducer for most cases, and for special cases.
+		no reason to repeat code with action types like this:
+			FETCH_DATA_PENDING
+			VS 
+			FETCH_USERS_PENDING
+			where only beginning is different.
+.
+Thunks
+	dispatch single function, that receives dispatch param.
+		*see store.dispatch( (dispatch)=>{} ); below
+	thunks can only be given one argument.
+middleware
+	redux-logger
+		helps to log in console with color coded info.
+			beforeState, action, afterState
+	thunk
+		...
+	redux-promise-middleware
+		*great to clean up Promises.
+			dispatch normally, w/ object aka action
+			return promise as payload
+		middleware will notice Promise payload in dispatch
+			sends default messages/dispatches.
+.
+.			
+----------------------------------------
+	file `client.js` EDIT
+----------------------------------------
+//has reducer, applyMiddleware, store, subscription, dispatch
+//axios//a XHR request//no need to bring in jquery
+import {applyMiddleware, createStore} from "redux";
+import axios from "axios";
+import logger = from "redux-logger";
+import thunk from "redux-thunk";
+import promise from "redux-promise-middleware";
 
+
+//has data UI can use
+const initialState = {
+	fetching: false, //if true, renders a loader tick
+	fetched: false,
+	users: [],
+	error: null,
+};
+
+//with redux-promise-middleware, you get
+	//type: "FETCH_USERS_PENDING"
+	//type: "FETCH_USERS_FULFILLED"
+	//type: "FETCH_USERS_REJECTED"
+const reducer = ( (state=initialState, action) => {
+	switch (action.type){
+		case "FETCH_USERS_START":{
+			return {...state, 
+				fetching: true
+			}
+			break;
+		}
+		case "RECEIVE_USERS":{
+			return {...state, 
+				fetching: false, 
+				fetched: true, 
+				users: action.payload
+			}
+			break;
+		}
+		case "FETCH_USERS_ERROR":{
+			return {...state, 
+				fetching: false, 
+				error: action.payload
+			}
+			break;
+		}
+		case "":{}
+	}
+	return state;
+});
+
+const middleware = applyMiddleware(promise(), thunk, logger()); //notice lgr()
+const store = createStore(reducer, middleware);
+
+//instead of store.dispatch({type: "FOO"});
+//multiple actions in one action
+//FETCH_USERS_START action wo/ payload, so UI can show loading bar.
+//dispatch param - ?self?
+//THUNK FORMAT
+store.dispatch(dispatch => {
+	dispatch({type: "FETCH_USERS_START"});
+	//ASYNC!
+	axios.get("http://rest.learncode.academy/api/wstern/users")
+		.then((response) => {
+			dispatch({type: "RECEIVE_USERS, payload: response.data});
+		})
+		.catch((err) => {
+			dispatch({type: "FETCH_USERS_ERROR, payload: err});			
+		});
+	//do something Async.
+	//dispatch({type: "FETCH_USERS_END"});
+});
+
+
+//REDUX-PROMISE-MIDDLEWARE FORMAT
+store.dispatch({
+	type: "FETCH_USERS", 
+	payload: axios.get("http://rest.learncode.academy/api/wstern/users"), 
+});
+/* console.log default messages from rpm
+type: "FETCH_USERS_PENDING"
+type: "FETCH_USERS_FULFILLED"
+type: "FETCH_USERS_REJECTED"
+Change reducer action types to above mentioned.
+*/
+----------------------------------------
+Summary
+----------------------------------------
+
+
+.
+.
+.
+----------------------------------------
+----------------------------------------
+SPIKE to `Thunk`, `middleware`, `reduce-promise-middleware` & `data fetching and routing` videos....
+----------------------------------------
+----------------------------------------
+.
+.
+.
+----------------------------------------
+About
+----------------------------------------
+What I know...
+	-middleware 
+		acts 1st after a dispatch before reducers and store subscription. 
+	-in a flux design, you can design for asynch, but is a bit complicated.
+	-redux gets a lot of the coding design done for you, but w/ appropriate redux packages.
+	-
+----------------------------------------
+	Redux Thunk
+----------------------------------------
+https://www.youtube.com/watch?v=1QI-UE3-0PU
+............
+About
+	redux plugin
+	used to handle async action graders
+Will talk about
+	1. why thunk exists
+	2. how to use redux thunk
+Redux exists cause, 
+	to hold app state.
+	can change state in well defined pattern
+Redux pattern. as suggested by Rally Coding.
+	React--(user clicks something)
+	-->Action Creator--(produces a...)
+	-->Action--(flows into...)
+	-->Middleware--(passes action to...)
+	-->Reducers--(produces a...)
+	-->State--(Flows into...)
+	-->React
+info on redux pattern
+	nicely represents synchronous, not async
+How do we make ASYNC requests?
+	redux thunk
+REDUX THUNK
+	give direct control over dispatch method.
+	dispatch is 
+		a method from redux's store
+		can be thought of / acts as
+			handling middleware, reducers, state
+			funnels actions to proper reducers
+		a middleware (according to someone)
+.		
+............
+	code - action file
+............
+import axios from 'axios';
+export {
+	fetchUsers: function(){
+		const request = axios.get("http://jsonplaceholder.typicode.com/users");
+		return(dispatch) => {
+			request.then( ({data}) => {
+				dispatch({type: 'FETCH_PROFILES', payload: data})
+			});
+		};
+	},
+};
+
+
+............
+	info - code 
+............
+actions file w/ 
+functions
+	returns data from promise requests
+Thunk
+	1st, realize existing rules for action creators go out the window. Think of it as funneling actions to reducers.
+	vanilla redux expects to return action{}.
+		return action{type: "required"}.
+	redux Thunk enables one other return type, a JS function.
+		return (dispatch)=>{
+			//handleData into {}action for dispatch
+		};
+			think of it as a unique way to use thunk
+.
+Redux Thunk return
+	reminder: 
+		if we pass an action into dispatch, will be sent to all reducers.
+		reducers will decide which action to act on, and return a state.
+	*thunk has a special weird way to be called, 
+		like passing dispatch itself into function...
+		even though you never imported...
+	*in the function, it promise.then() to dispatch action w/ data.
+*WHAT IS HAPPENING behind the scenes?
+	->App component is "calling, actionCreator, `fetchUsers`"
+		whenever component about to mount `componentWillMount`, 
+			it calls fetchUsers() actionCreator
+	->"request to API" via axios
+	->"fetchUsers returns function"
+		usually, actionCreators expected to return action{}.
+		redux-thunk, gives aditional return type (function()).
+	->"RT" calls function w/dispatch
+		redux-thunk:: which is our middleware
+		*sees actionCreator returns a function, 
+			automatically runs function with dispatch
+	->"...time passes..."
+		imagine sitting in function waiting for promises.
+		think of it as sitting before the `.then()`.
+	->"request resolves" some time in the future w/ data.
+	->"call dispatch w/ action"
+	->
+redux-promise-middleware
+	it knows that if action contains a promise, that it should wait.
+.
+			
+
+.
+.
+----------------------------------------
+ReactCasts #6 - Redux Middleware
+----------------------------------------
+https://www.youtube.com/watch?v=T-qtHI1qHIg
+............
+This is best video
+	explains some redux design
+	how/where/whenExecutes of middleware
+	cool barebone implementation of promise middleware
 
 ----------------------------------------
 
@@ -1057,28 +2448,169 @@ Video 20:
 
 
 
+
+.
+.
+.
 ----------------------------------------
+----------------------------------------
+jump back to video notes....
+----------------------------------------
+----------------------------------------
+.
+.
+.
+*****************************************
+Video 21: Connecting React & Redux - Redux Tutorial #7
+*****************************************
+https://youtu.be/nrg7zhgJd4w
+----------------------------------------
+About
+----------------------------------------
+*see github repo in '5-redux-react'
 
 ----------------------------------------
+	Info - code
+----------------------------------------
+client.js
+	is renderer
+Layout component
+	returns null //empty page
+store.js
+	middleware & store.
+	imported reducers from a separate file.
+		import reducer from "./reducers";
+	*see reducers.js
+reducers.js
+	combineReducers from redux
+	importing other reducers
+		combineReducers({tweets, user,});
+actions
+	*must have a type
+	tweetAction
+	userAction
+suggested
+	import * as user from "userActions";
+	//to be able to do this:
+	user.fetchUser();
+.
+**When an where use @connect?
+	smart components use connect
+	pass as props to dumb components
+**More you pass PROPS, 
+	the HARDER it is to unit test React Components
+How broke up Redux code?...---
+.
 
+----------------------------------------
+	file `client.js` EDIT aka renderer
+----------------------------------------
+import { Provider } from "react-redux";
+import store from "./store";
+
+ReactDOM.render(
+	<Provider store={store}>
+		<Layout />
+	</Provider>
+	, app);
+----------------------------------------
+	file `Layout.js` EDIT
+----------------------------------------
+import { connect } from "react-redux";
+import {fetchUser} from "userActions";
+import {fetchTweets} from "tweetsActions";
+
+@connect( (store) => {
+	return {
+		foo: 1, 
+		user: store.user.user,
+		userFetched: store.user.fetched, 
+		tweets, store.tweets.tweets,
+	};
+});
+export default class Layout extends React.Component {
+	componentWillMount(){
+		this.props.dispatch(fetchUser()); //fetchUser was hardcoded
+	}
+	
+	fetchTweets(){
+		this.props.dispatch(fetchUser());
+	}
+	
+	render(){
+		//console.log(this.props);
+		//lets say if tweets not loaded, give button to load them.
+		const {user, tweets} = this.props;
+		if (!tweets.length){
+			return (
+			<button onClick={this.fetchTweets.bind(this)}>
+				load tweets!
+			</button>);
+		}
+		const mappedTweets = tweets.map((tweets)=><li>tweet.text</li>);
+		return (
+			<div>
+				<h1>{user.name}</h1>
+				<ul>
+					{mappedTweets}
+				</ul>
+			</div>
+		);
+	}
+}
+----------------------------------------
+	file `tweetAction.js` EDIT
+----------------------------------------
+//functions
+
+
+----------------------------------------
+	Info - code 
+----------------------------------------
+with inserting store prop in Provider. "react-redux".
+	app tied to redux.
+	any component, in chain, 
+		can import data from redux store.
+		and dispatch store actions.
+.
+connect from "react-redux"
+	**cleans up from having to place props in JSX Layout Level.
+	**can slice parts from store.
+	*injects props into components
+	*runs 2 functions
+		a. gets store values as props
+		b. 
+	can place above components if, 
+	transpiling w/ ES6.
+	package.json
+		babel-plugin-transform-decorators-legacy
+	webpack.config.js
+		in plugins, added "transform-decorators-legacy"
+.
+transform-decorators-legacy
+	great way to wrap components
+.
+----------------------------------------
+Summary:
+----------------------------------------
 
 
 *****************************************
-Video 21: 
 *****************************************
-
-
-----------------------------------------
-
-----------------------------------------
-
-
-
-----------------------------------------
-
-----------------------------------------
-
-
+	END OF REDUX/REACT
+*****************************************
+*****************************************
+If want to learn react efficiently, cover
+react design and code.
+	try catching good practices with "list transformations"
+	ex: map, reduce, filter, reject, find, concat, 
+flux design, NOT CODE -- confusing.
+Redux design and code.
+.
+.
+.
+.
+.
 
 *****************************************
 Video 22: 
