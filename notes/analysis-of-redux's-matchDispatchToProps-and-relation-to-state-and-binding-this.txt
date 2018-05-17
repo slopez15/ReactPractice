@@ -1,0 +1,46 @@
+My return to React/Redux. 
+Here are some theories that possibly explain what is occuring in redux background and how it relates to components' state and the use of 'this'.
+
+LearnCode.academy #10 @ 1:50 = https://youtu.be/bvEC6i7CUyE
+event emitter is cool for custom events otherwise use something else.
+
+class C extends EventEmitter //from nodejs library
+m(){this.emit("eventN") }
+when called,
+m.on("eventN", ()=> {} );
+
+The syntax for (html onEventAttrib, js .onEventMethods(), js .addEventListener() ) https://www.w3schools.com/jsref/event_onclick.asp
+1) <element onclick="myScript()"> <script>function myFunction() {} </script>
+2) node.onclick = function(){myScript()};
+3) node.addEventListener("click", myScript);
+
+CS50 react native vids #4 lecture2 @ 1:14:45 = https://youtu.be/7O43VDOlQ_o
+* He shows how it should be done. (to me is at its simplest form)
+* JSX; where myscript is defined in a class.
+  if he didn't bind (this.myScript) than 'this' would be undefined and not refering to the class.
+  <element onClick={ this.myScript().bind(this) }> <script>function myFunction() {} </script>
+* same as. Reason = arrow function auto-binds this.
+  <element onClick={ () => this.myScript() }> <script>function myFunction() {} </script>
+
+This is what my theory is about and relating to portion above.
+The Redux Way with its bindActionCreators()  = https://youtu.be/_x3gitcwtAc
+in component,
+matchDispatchToProps(dispatch){
+  return bindActionCreators( {mathN: actionCreatorN}, dispatch );
+} 
+
+The Theory
+Based on CS50's way with only react you relize that binding is necessary 
+and then have some of the questions mentioned below regarding decoupling functions from a file and that passing them through props instead of import and strait call and possiblie this issues.
+**The theory is that 'matchDispatchToProps' is a redux method that binds functions to props for you and handlilng the 'this' aspect**.
+
+Academind #2 what/why redux = https://youtu.be/D2MqT4OEgoE
+Why redux?
+to help not need handle passing info of component state updates to other components
+thus, 1 sotre to store all components' state and be aware of other components' states.
+
+Questions
+need to create new instanace?
+^this is a prob in itself?
+to decouple from file (the defining location )?
+^this refers to in file/function, means can't export/import?
