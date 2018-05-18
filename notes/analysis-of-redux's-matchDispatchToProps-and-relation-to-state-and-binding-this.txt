@@ -44,3 +44,4 @@ need to create new instanace?
 ^this is a prob in itself?
 to decouple from file (the defining location )?
 ^this refers to in file/function, means can't export/import?
+do we have to bind if the function uses 'this' keyword?
