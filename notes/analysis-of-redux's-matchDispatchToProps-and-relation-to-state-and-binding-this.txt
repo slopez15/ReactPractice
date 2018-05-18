@@ -14,7 +14,7 @@ The syntax for (html onEventAttrib, js .onEventMethods(), js .addEventListener()
 2) node.onclick = function(){myScript()};
 3) node.addEventListener("click", myScript);
 
-CS50 react native vids #4 lecture2 @ 1:14:45 = https://youtu.be/7O43VDOlQ_o
+CS50 react native vids #4 lecture2 @ 46:35 = https://youtu.be/7O43VDOlQ_o
 * He shows how it should be done. (to me is at its simplest form)
 * JSX; where myscript is defined in a class.
   if he didn't bind (this.myScript) than 'this' would be undefined and not refering to the class.
