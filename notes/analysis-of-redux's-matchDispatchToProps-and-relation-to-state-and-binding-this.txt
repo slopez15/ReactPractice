@@ -45,3 +45,5 @@ need to create new instanace?
 to decouple from file (the defining location )?
 ^this refers to in file/function, means can't export/import?
 do we have to bind if the function uses 'this' keyword?
+
+Remember to add later: how setState's 'merge' idea works and the method to use if dealing with previous state dep. 
